@@ -1,0 +1,228 @@
+
+pack.png
+size: 1024,1024
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+background
+  rotate: false
+  xy: 2, 85
+  size: 512, 275
+  orig: 512, 275
+  offset: 0, 0
+  index: -1
+error
+  rotate: false
+  xy: 516, 328
+  size: 58, 32
+  orig: 58, 32
+  offset: 0, 0
+  index: -1
+health
+  rotate: false
+  xy: 2, 53
+  size: 300, 30
+  orig: 300, 30
+  offset: 0, 0
+  index: -1
+mountains
+  rotate: false
+  xy: 2, 362
+  size: 1000, 250
+  orig: 1000, 250
+  offset: 0, 0
+  index: -1
+pause
+  rotate: false
+  xy: 2, 2
+  size: 43, 49
+  orig: 43, 49
+  offset: 0, 0
+  index: -1
+test
+  rotate: false
+  xy: 304, 62
+  size: 21, 21
+  orig: 21, 21
+  offset: 0, 0
+  index: -1
+
+pack2.png
+size: 256,32
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+player_idle
+  rotate: false
+  xy: 2, 2
+  size: 18, 28
+  orig: 18, 28
+  offset: 0, 0
+  index: -1
+player_jump
+  rotate: false
+  xy: 2, 2
+  size: 18, 28
+  orig: 18, 28
+  offset: 0, 0
+  index: 3
+player_jump
+  rotate: false
+  xy: 2, 2
+  size: 18, 28
+  orig: 18, 28
+  offset: 0, 0
+  index: 1
+player_jump
+  rotate: false
+  xy: 22, 2
+  size: 18, 28
+  orig: 18, 28
+  offset: 0, 0
+  index: 2
+player_run
+  rotate: false
+  xy: 42, 2
+  size: 18, 28
+  orig: 18, 28
+  offset: 0, 0
+  index: 1
+player_run
+  rotate: false
+  xy: 62, 2
+  size: 18, 28
+  orig: 18, 28
+  offset: 0, 0
+  index: 2
+player_run
+  rotate: false
+  xy: 82, 2
+  size: 18, 28
+  orig: 18, 28
+  offset: 0, 0
+  index: 3
+player_run
+  rotate: false
+  xy: 102, 2
+  size: 18, 28
+  orig: 18, 28
+  offset: 0, 0
+  index: 4
+player_shoot
+  rotate: false
+  xy: 122, 2
+  size: 18, 28
+  orig: 18, 28
+  offset: 0, 0
+  index: 1
+player_shoot
+  rotate: false
+  xy: 142, 2
+  size: 18, 28
+  orig: 18, 28
+  offset: 0, 0
+  index: 2
+player_shoot
+  rotate: false
+  xy: 142, 2
+  size: 18, 28
+  orig: 18, 28
+  offset: 0, 0
+  index: 6
+player_shoot
+  rotate: false
+  xy: 142, 2
+  size: 18, 28
+  orig: 18, 28
+  offset: 0, 0
+  index: 3
+player_shoot
+  rotate: false
+  xy: 142, 2
+  size: 18, 28
+  orig: 18, 28
+  offset: 0, 0
+  index: 7
+player_shoot
+  rotate: false
+  xy: 162, 2
+  size: 18, 28
+  orig: 18, 28
+  offset: 0, 0
+  index: 4
+player_shoot
+  rotate: false
+  xy: 162, 2
+  size: 18, 28
+  orig: 18, 28
+  offset: 0, 0
+  index: 5
+
+pack3.png
+size: 256,32
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+zombie_idle
+  rotate: false
+  xy: 2, 2
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: -1
+zombie_run
+  rotate: false
+  xy: 2, 2
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: 8
+zombie_run
+  rotate: false
+  xy: 2, 2
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: 7
+zombie_run
+  rotate: false
+  xy: 2, 2
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: 3
+zombie_run
+  rotate: false
+  xy: 2, 2
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: 4
+zombie_run
+  rotate: false
+  xy: 32, 2
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: 1
+zombie_run
+  rotate: false
+  xy: 62, 2
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: 2
+zombie_run
+  rotate: false
+  xy: 92, 2
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: 5
+zombie_run
+  rotate: false
+  xy: 122, 2
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: 6
