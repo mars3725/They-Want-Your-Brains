@@ -23,23 +23,28 @@ public class AnimationSystem extends IteratingSystem {
 	@Override
 	public void processEntity(Entity entity, float deltaTime) {
 		AnimationComponent animationComponent = Mappers.am.get(entity);
-		TextureRegion texture = Assets.player_idle;
+		StateComponent stateComponent = Mappers.stm.get(entity);
 
-		if (animationComponent.animations.containsKey(Mappers.stm.get(entity).state.ordinal())) {
-			Animation animation = animationComponent.animations.get(Mappers.stm.get(entity).state.ordinal());
-			texture = animation.getKeyFrame(Mappers.stm.get(entity).time, animationComponent.loop);
-			Mappers.stm.get(entity).time += deltaTime;
+		TextureRegion texture = Assets.error;
+
+		if (animationComponent.animations.containsKey(stateComponent.state.ordinal())) {
+			Animation animation = animationComponent.animations.get(stateComponent.state.ordinal());
+			texture = animation.getKeyFrame(stateComponent.time, animationComponent.loop);
+			stateComponent.time += deltaTime;
 		} else {
-			switch (Mappers.stm.get(entity).state) {
+			switch (stateComponent.state) {
 				case idle:
-					texture = Assets.player_idle;
-
+					texture = animationComponent.idleTexture;
 					break;
-				default:
-					System.out.println("Error picking player texture");
+				case falling:
+					texture = animationComponent.fallTexture;
+					break;
+				case jumping:
+					texture = animationComponent.jumpTexture;
 					break;
 			}
 		}
+
 		if (animationComponent.flipped && !texture.isFlipX()) {
 			texture.flip(true, false);
 		} else if (!animationComponent.flipped && texture.isFlipX()) {

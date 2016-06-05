@@ -4,9 +4,7 @@ import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.SortedIteratingSystem;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.matthewmohandiss.zombiegame.components.*;
@@ -40,12 +38,12 @@ public class RenderingSystem extends SortedIteratingSystem {
 			PositionComponent position = Mappers.pm.get(entity);
 			SizeComponent size = Mappers.sm.get(entity);
 
-			batch.draw(texture,              //texture
+			batch.draw(texture,                                             //texture
 					position.x - size.width/2,position.y - size.height/2,   //bottom left corner
-					position.x,position.y,   //origin offset
-					size.width,size.height,  //size
-					size.xScale,size.yScale, //scale
-					position.rotation);      //rotation
+					size.width / 2, size.height / 2,                             //origin offset
+					size.width, size.height,                                 //size
+					size.xScale, size.yScale,                                //scale
+					position.rotation);                                     //rotation
 			batch.end();
 		}
 	}

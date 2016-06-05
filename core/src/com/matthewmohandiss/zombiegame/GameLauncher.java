@@ -7,7 +7,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.viewport.Viewport;
 import com.matthewmohandiss.zombiegame.components.CameraComponent;
 import com.matthewmohandiss.zombiegame.components.Mappers;
 import com.matthewmohandiss.zombiegame.systems.AnimationSystem;
@@ -20,16 +19,12 @@ public class GameLauncher extends Game {
 	public float WINDOW_WIDTH = 16*5;
 	public float WINDOW_HEIGHT = 9*5;
 	public OrthographicCamera camera;
-	private final int pixelsPerMeter = 10;
 
 	@Override
 	public void create() {
 		Assets.load();
 		batch = new SpriteBatch();
 		engine = new PooledEngine();
-
-//		WINDOW_WIDTH = Gdx.graphics.getWidth()/pixelsPerMeter;
-//		WINDOW_HEIGHT = Gdx.graphics.getHeight()/pixelsPerMeter;
 
 		Entity cam = engine.createEntity();
 		cam.add(engine.createComponent(CameraComponent.class));
@@ -38,16 +33,22 @@ public class GameLauncher extends Game {
 		Mappers.cm.get(cam).camera.update();
 		camera = cam.getComponent(CameraComponent.class).camera;
 
-		engine.addSystem(new CameraSystem());
-		engine.addSystem(new RenderingSystem(this.batch));
-		engine.addSystem(new AnimationSystem());
+		CameraSystem cameraSystem = new CameraSystem();
+		cameraSystem.priority = 4;
+		engine.addSystem(cameraSystem);
+		RenderingSystem renderingSystem = new RenderingSystem(this.batch);
+		renderingSystem.priority = 3;
+		engine.addSystem(renderingSystem);
+		AnimationSystem animationSystem = new AnimationSystem();
+		animationSystem.priority = 2;
+		engine.addSystem(animationSystem);
 
 		setScreen(new MainMenu(this));
 	}
 
 	@Override
 	public void render() {
-		Gdx.gl.glClearColor(0, 0, 0, 0);
+		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		super.render();
 

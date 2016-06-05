@@ -22,9 +22,10 @@ public class Assets {
 	public static TextureRegion error;
 	public static TextureRegion test;
 	public static TextureRegion player_idle;
+	public static TextureRegion player_jump;
+	public static TextureRegion player_fall;
 	public static Array<TextureAtlas.AtlasRegion> player_run;
 	public static Array<TextureAtlas.AtlasRegion> player_shoot;
-	public static Array<TextureAtlas.AtlasRegion> player_jump;
 	public static Array<TextureAtlas.AtlasRegion> zombie_run;
 	public static TextureRegion zombie_idle;
 
@@ -44,11 +45,12 @@ public class Assets {
 		error = loadTexture("error");
 		test = loadTexture("test");
 		player_idle = loadTexture("player_idle");
+		player_jump = loadTexture("player_jump");
 		player_run = pack.findRegions("player_run");
-		player_jump = pack.findRegions("player_jump");
 		player_shoot = pack.findRegions("player_shoot");
 		zombie_run = pack.findRegions("zombie_run");
 		zombie_idle = loadTexture("zombie_idle");
+		player_fall = loadTexture("player_fall");
 
 		clickSound = Gdx.audio.newSound(Gdx.files.internal("click.wav"));
 

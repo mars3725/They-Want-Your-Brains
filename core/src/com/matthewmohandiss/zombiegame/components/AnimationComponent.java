@@ -2,6 +2,7 @@ package com.matthewmohandiss.zombiegame.components;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.IntMap;
 
 /**
@@ -10,6 +11,9 @@ import com.badlogic.gdx.utils.IntMap;
 
 public class AnimationComponent implements Component {
 	public IntMap<Animation> animations = new IntMap<Animation>();
+	public TextureRegion idleTexture;
+	public TextureRegion jumpTexture;
+	public TextureRegion fallTexture;
 	public boolean flipped = false;
 	public boolean loop = true;
 }

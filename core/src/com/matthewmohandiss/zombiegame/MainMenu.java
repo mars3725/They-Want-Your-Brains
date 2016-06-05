@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import com.matthewmohandiss.zombiegame.components.*;
 import com.matthewmohandiss.zombiegame.systems.ControlSystem;
+import com.matthewmohandiss.zombiegame.systems.PhysicsSystem;
 
 /**
  * Created by Matthew on 5/27/16.
@@ -30,16 +31,20 @@ public class MainMenu extends ScreenAdapter implements InputProcessor {
 		createBackground();
 		createTest();
 
-		window.engine.addSystem(new ControlSystem(
-				window.engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).first()));
+		ControlSystem controlSystem = new ControlSystem(window.engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).first());
+		controlSystem.priority = 0;
+		window.engine.addSystem(controlSystem);
+		PhysicsSystem physicsSystem = new PhysicsSystem(physicsWorld);
+		physicsSystem.priority = 1;
+		window.engine.addSystem(physicsSystem);
 	}
 
 	private void createPlayer() {
 		Entity player = window.engine.createEntity();
 
 		PositionComponent position = window.engine.createComponent(PositionComponent.class);
-		position.x = 100;
-		position.y = 50;
+		position.x = 30;
+		position.y = 20;
 		position.z = 1;
 		player.add(position);
 
@@ -52,16 +57,34 @@ public class MainMenu extends ScreenAdapter implements InputProcessor {
 		texture.texture = Assets.player_idle;
 		player.add(texture);
 
-		VelocityComponent velocity = window.engine.createComponent(VelocityComponent.class);
-		player.add(velocity);
-
 		PlayerComponent playerComponent = window.engine.createComponent(PlayerComponent.class);
 		player.add(playerComponent);
 
+		PhysicsComponent physicsComponent = window.engine.createComponent(PhysicsComponent.class);
+		BodyDef bodyDef = new BodyDef();
+		bodyDef.type = BodyDef.BodyType.DynamicBody;
+		bodyDef.position.set(position.x, position.y);
+		Body body = physicsWorld.createBody(bodyDef);
+		PolygonShape shape = new PolygonShape();
+		shape.setAsBox(size.width / 2, size.height / 2);
+
+		FixtureDef fixtureDef = new FixtureDef();
+		fixtureDef.shape = shape;
+		fixtureDef.density = 0.25f;
+		fixtureDef.friction = 0.6f;
+
+		body.createFixture(fixtureDef);
+		physicsComponent.physicsBody = body;
+		physicsComponent.maxVelocity = 30;
+		shape.dispose();
+		player.add(physicsComponent);
+
 		AnimationComponent animation = window.engine.createComponent(AnimationComponent.class);
 		animation.animations.put(PlayerState.running.ordinal(), new Animation(0.15f, Assets.player_run));
-		animation.animations.put(PlayerState.jumping.ordinal(), new Animation(0.15f, Assets.player_jump));
 		animation.animations.put(PlayerState.shooting.ordinal(), new Animation(0.3f, Assets.player_shoot));
+		animation.idleTexture = Assets.player_idle;
+		animation.jumpTexture = Assets.player_jump;
+		animation.fallTexture = Assets.player_fall;
 		player.add(animation);
 
 		StateComponent state = window.engine.createComponent(StateComponent.class);
@@ -72,14 +95,6 @@ public class MainMenu extends ScreenAdapter implements InputProcessor {
 		window.engine.addEntity(player);
 		Entity cam = window.engine.getEntitiesFor(Family.all(CameraComponent.class).get()).first();
 		Mappers.cm.get(cam).target = player;
-
-		BodyDef groundBodyDef = new BodyDef();
-		Body groundBody = physicsWorld.createBody(groundBodyDef);
-		PolygonShape groundBox = new PolygonShape();
-		groundBox.setAsBox(size.width/2, size.height/2, new Vector2(position.x, position.y), position.rotation);
-		groundBody.createFixture(groundBox, 0.0f);
-		groundBox.dispose();
-		groundBody.setUserData(player);
 	}
 
 	private void createZombie() {
@@ -99,9 +114,6 @@ public class MainMenu extends ScreenAdapter implements InputProcessor {
 		TextureComponent texture = window.engine.createComponent(TextureComponent.class);
 		texture.texture = Assets.player_idle;
 		zombie.add(texture);
-
-		VelocityComponent velocity = window.engine.createComponent(VelocityComponent.class);
-		zombie.add(velocity);
 
 		AnimationComponent animation = window.engine.createComponent(AnimationComponent.class);
 		animation.animations.put(PlayerState.running.ordinal(), new Animation(0.15f, Assets.zombie_run));
@@ -136,14 +148,6 @@ public class MainMenu extends ScreenAdapter implements InputProcessor {
 		test.add(texture);
 
 		window.engine.addEntity(test);
-
-		BodyDef groundBodyDef = new BodyDef();
-		Body groundBody = physicsWorld.createBody(groundBodyDef);
-		PolygonShape groundBox = new PolygonShape();
-		groundBox.setAsBox(size.width, size.height, new Vector2(position.x, position.y), position.rotation);
-		groundBody.createFixture(groundBox, 0.0f);
-		groundBox.dispose();
-		groundBody.setUserData(test);
 	}
 
 	private void createBackground() {
@@ -164,6 +168,22 @@ public class MainMenu extends ScreenAdapter implements InputProcessor {
 		texture.texture = Assets.background;
 		background.add(texture);
 
+		PhysicsComponent physicsComponent = window.engine.createComponent(PhysicsComponent.class);
+		BodyDef bodyDef = new BodyDef();
+		bodyDef.position.set(position.x, position.y);
+		Body body = physicsWorld.createBody(bodyDef);
+		ChainShape loop = new ChainShape();
+		Vector2[] vertices = new Vector2[4];
+		vertices[0] = new Vector2(-size.width / 2, -size.height / 2);
+		vertices[1] = new Vector2(-size.width / 2, size.height / 2);
+		vertices[2] = new Vector2(size.width / 2, size.height / 2);
+		vertices[3] = new Vector2(size.width / 2, -size.height / 2);
+		loop.createLoop(vertices);
+		body.createFixture(loop, 0.0f);
+		physicsComponent.physicsBody = body;
+		loop.dispose();
+		background.add(physicsComponent);
+
 		window.engine.addEntity(background);
 	}
 
@@ -171,14 +191,6 @@ public class MainMenu extends ScreenAdapter implements InputProcessor {
 		Box2D.init();
 		physicsWorld = new World(new Vector2(0, -10), true);
 		debugRenderer = new Box2DDebugRenderer();
-
-		BodyDef groundBodyDef =new BodyDef();
-		groundBodyDef.position.set(new Vector2(10, 0));
-		Body groundBody = physicsWorld.createBody(groundBodyDef);
-		PolygonShape groundBox = new PolygonShape();
-		groundBox.setAsBox(10, 0);
-		groundBody.createFixture(groundBox, 0.0f);
-		groundBox.dispose();
 	}
 
 	@Override
