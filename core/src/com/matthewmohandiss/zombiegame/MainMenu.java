@@ -29,7 +29,7 @@ public class MainMenu extends ScreenAdapter implements InputProcessor {
 		initBox2D();
 		createPlayer();
 		createBackground();
-		createTest();
+		createCrate();
 
 		ControlSystem controlSystem = new ControlSystem(window.engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).first());
 		controlSystem.priority = 0;
@@ -64,14 +64,16 @@ public class MainMenu extends ScreenAdapter implements InputProcessor {
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type = BodyDef.BodyType.DynamicBody;
 		bodyDef.position.set(position.x, position.y);
+		bodyDef.fixedRotation = true;
+		bodyDef.linearDamping = 0.5f;
 		Body body = physicsWorld.createBody(bodyDef);
 		PolygonShape shape = new PolygonShape();
 		shape.setAsBox(size.width / 2, size.height / 2);
 
 		FixtureDef fixtureDef = new FixtureDef();
 		fixtureDef.shape = shape;
-		fixtureDef.density = 0.25f;
-		fixtureDef.friction = 0.6f;
+		fixtureDef.density = .13f;
+		fixtureDef.friction = 0.9f;
 
 		body.createFixture(fixtureDef);
 		physicsComponent.physicsBody = body;
@@ -129,7 +131,7 @@ public class MainMenu extends ScreenAdapter implements InputProcessor {
 		Mappers.cm.get(cam).target = zombie;
 	}
 
-	private void createTest() {
+	private void createCrate() {
 		Entity test = window.engine.createEntity();
 
 		PositionComponent position = window.engine.createComponent(PositionComponent.class);
@@ -139,13 +141,32 @@ public class MainMenu extends ScreenAdapter implements InputProcessor {
 		test.add(position);
 
 		SizeComponent size = window.engine.createComponent(SizeComponent.class);
-		size.width = Assets.test.getRegionWidth();
-		size.height = Assets.test.getRegionHeight();
+		size.width = Assets.crate.getRegionWidth();
+		size.height = Assets.crate.getRegionHeight();
 		test.add(size);
 
 		TextureComponent texture = window.engine.createComponent(TextureComponent.class);
-		texture.texture = Assets.test;
+		texture.texture = Assets.crate;
 		test.add(texture);
+
+		PhysicsComponent physicsComponent = window.engine.createComponent(PhysicsComponent.class);
+		BodyDef bodyDef = new BodyDef();
+		bodyDef.type = BodyDef.BodyType.DynamicBody;
+		bodyDef.position.set(position.x, position.y);
+		Body body = physicsWorld.createBody(bodyDef);
+		PolygonShape shape = new PolygonShape();
+		shape.setAsBox(size.width / 2, size.height / 2);
+
+		FixtureDef fixtureDef = new FixtureDef();
+		fixtureDef.shape = shape;
+		fixtureDef.density = 1.5f;
+		fixtureDef.friction = 0.9f;
+
+		body.createFixture(fixtureDef);
+		physicsComponent.physicsBody = body;
+		physicsComponent.maxVelocity = 30;
+		shape.dispose();
+		test.add(physicsComponent);
 
 		window.engine.addEntity(test);
 	}
@@ -154,18 +175,18 @@ public class MainMenu extends ScreenAdapter implements InputProcessor {
 		Entity background = window.engine.createEntity();
 
 		PositionComponent position = window.engine.createComponent(PositionComponent.class);
-		position.x = Assets.background.getRegionWidth()/2;
-		position.y = Assets.background.getRegionHeight()/2;
+		position.x = Assets.forest_background.getRegionWidth() / 2;
+		position.y = Assets.forest_background.getRegionHeight() / 2;
 		position.z = 0;
 		background.add(position);
 
 		SizeComponent size = window.engine.createComponent(SizeComponent.class);
-		size.width = Assets.background.getRegionWidth();
-		size.height = Assets.background.getRegionHeight();
+		size.width = Assets.forest_background.getRegionWidth();
+		size.height = Assets.forest_background.getRegionHeight();
 		background.add(size);
 
 		TextureComponent texture = window.engine.createComponent(TextureComponent.class);
-		texture.texture = Assets.background;
+		texture.texture = Assets.forest_background;
 		background.add(texture);
 
 		PhysicsComponent physicsComponent = window.engine.createComponent(PhysicsComponent.class);
@@ -179,7 +200,10 @@ public class MainMenu extends ScreenAdapter implements InputProcessor {
 		vertices[2] = new Vector2(size.width / 2, size.height / 2);
 		vertices[3] = new Vector2(size.width / 2, -size.height / 2);
 		loop.createLoop(vertices);
-		body.createFixture(loop, 0.0f);
+		FixtureDef fixtureDef = new FixtureDef();
+		fixtureDef.shape = loop;
+		fixtureDef.friction = 1.5f;
+		body.createFixture(fixtureDef);
 		physicsComponent.physicsBody = body;
 		loop.dispose();
 		background.add(physicsComponent);
@@ -206,30 +230,30 @@ public class MainMenu extends ScreenAdapter implements InputProcessor {
 	@Override
 	public boolean keyDown(int keycode) {
 		Entity player = window.engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).first();
-			switch (keycode) {
-				case 19: //up
-					window.engine.getSystem(ControlSystem.class).jump();
-					break;
-				case 21: //left
-					window.engine.getSystem(ControlSystem.class).moveLeft();
-					break;
-				case 22: //right
-					window.engine.getSystem(ControlSystem.class).moveRight();
-					break;
-				case 62: //space
-					window.engine.getSystem(ControlSystem.class).shoot();
-					break;
-				case 69: //minus
-					window.camera.zoom += 0.25;
-					break;
-				case 70: //plus
-					if (window.camera.zoom > 0) {
-						window.camera.zoom -= 0.25;
-					}
-					break;
-				default:
-					System.out.println("no keybind for keycode " + keycode);
-			}
+		switch (keycode) {
+			case 19: //up
+				window.engine.getSystem(ControlSystem.class).jump();
+				break;
+			case 21: //left
+				window.engine.getSystem(ControlSystem.class).moveLeft();
+				break;
+			case 22: //right
+				window.engine.getSystem(ControlSystem.class).moveRight();
+				break;
+			case 62: //space
+				window.engine.getSystem(ControlSystem.class).shoot();
+				break;
+			case 69: //minus
+				window.camera.zoom += 0.25;
+				break;
+			case 70: //plus
+				if (window.camera.zoom > 0) {
+					window.camera.zoom -= 0.25;
+				}
+				break;
+			default:
+				System.out.println("no keybind for keycode " + keycode);
+		}
 		return false;
 	}
 
@@ -272,7 +296,7 @@ public class MainMenu extends ScreenAdapter implements InputProcessor {
 		window.engine.update(delta);
 		//http://gafferongames.com/game-physics/fix-your-timestep/
 		debugRenderer.render(physicsWorld, window.camera.combined);
-		physicsWorld.step(1/60f, 6, 2);
+		physicsWorld.step(1 / 60f, 6, 2);
 	}
 
 }

@@ -41,10 +41,10 @@ public class ControlSystem extends EntitySystem {
 	}
 
 	public void jump() {
-		if (stateComponent.state != PlayerState.jumping) {
+		if (stateComponent.state != PlayerState.jumping && stateComponent.state != PlayerState.falling) {
 			stateComponent.set(PlayerState.jumping);
 			animationComponent.loop = false;
-			physicsBody.applyLinearImpulse(0, 2500f, Mappers.pm.get(player).x, Mappers.pm.get(player).y, true);
+			physicsBody.applyLinearImpulse(0, 1500, Mappers.pm.get(player).x, Mappers.pm.get(player).y, true);
 		}
 	}
 
@@ -63,10 +63,13 @@ public class ControlSystem extends EntitySystem {
 		super.update(deltaTime);
 		switch (stateComponent.state) {
 			case idle:
+				if (physicsBody.getLinearVelocity().y == 0 && Math.abs(physicsBody.getLinearVelocity().x) > 5) {
+					physicsBody.setLinearVelocity(0, 0);
+				}
 				break;
 			case running:
 				if (animationComponent.flipped && physicsBody.getLinearVelocity().x > -Mappers.phm.get(player).maxVelocity) {
-					physicsBody.applyLinearImpulse(-50f, 0, Mappers.pm.get(player).x, Mappers.pm.get(player).y, true);
+					physicsBody.applyLinearImpulse(-100f, 0, Mappers.pm.get(player).x, Mappers.pm.get(player).y, true);
 				} else if (!animationComponent.flipped && physicsBody.getLinearVelocity().x < Mappers.phm.get(player).maxVelocity) {
 					physicsBody.applyLinearImpulse(100f, 0, Mappers.pm.get(player).x, Mappers.pm.get(player).y, true);
 				}
@@ -74,6 +77,8 @@ public class ControlSystem extends EntitySystem {
 			case jumping:
 				if (physicsBody.getLinearVelocity().y < 0) {
 					stateComponent.set(PlayerState.falling);
+				} else if (physicsBody.getLinearVelocity().y > 0) {
+					Mappers.tm.get(player).texture = Mappers.am.get(player).idleTexture;
 				}
 				break;
 			case falling:

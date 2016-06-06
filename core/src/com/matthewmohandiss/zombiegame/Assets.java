@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.Array;
 public class Assets {
 	public static TextureAtlas pack;
 	public static TextureRegion background;
+	public static TextureRegion forest_background;
 	public static TextureRegion health;
 	public static TextureRegion mountains;
 	public static TextureRegion pause;
@@ -28,6 +29,7 @@ public class Assets {
 	public static Array<TextureAtlas.AtlasRegion> player_shoot;
 	public static Array<TextureAtlas.AtlasRegion> zombie_run;
 	public static TextureRegion zombie_idle;
+	public static TextureRegion crate;
 
 	//	public static Music music;
 	public static Sound clickSound;
@@ -51,6 +53,8 @@ public class Assets {
 		zombie_run = pack.findRegions("zombie_run");
 		zombie_idle = loadTexture("zombie_idle");
 		player_fall = loadTexture("player_fall");
+		forest_background = loadTexture("forest_background");
+		crate = loadTexture("crate");
 
 		clickSound = Gdx.audio.newSound(Gdx.files.internal("click.wav"));
 
