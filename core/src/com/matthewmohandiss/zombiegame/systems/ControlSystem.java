@@ -44,7 +44,7 @@ public class ControlSystem extends EntitySystem {
 		if (stateComponent.state != PlayerState.jumping && stateComponent.state != PlayerState.falling) {
 			stateComponent.set(PlayerState.jumping);
 			animationComponent.loop = false;
-			physicsBody.applyLinearImpulse(0, 1500, Mappers.pm.get(player).x, Mappers.pm.get(player).y, true);
+			physicsBody.applyLinearImpulse(0, 750, Mappers.pm.get(player).x, Mappers.pm.get(player).y, true);
 		}
 	}
 

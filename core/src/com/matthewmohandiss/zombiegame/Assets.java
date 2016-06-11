@@ -30,6 +30,7 @@ public class Assets {
 	public static Array<TextureAtlas.AtlasRegion> zombie_run;
 	public static TextureRegion zombie_idle;
 	public static TextureRegion crate;
+	public static TextureRegion board;
 
 	//	public static Music music;
 	public static Sound clickSound;
@@ -55,6 +56,7 @@ public class Assets {
 		player_fall = loadTexture("player_fall");
 		forest_background = loadTexture("forest_background");
 		crate = loadTexture("crate");
+		board = loadTexture("board");
 
 		clickSound = Gdx.audio.newSound(Gdx.files.internal("click.wav"));
 

@@ -6,56 +6,63 @@ filter: Nearest,Nearest
 repeat: none
 background
   rotate: false
-  xy: 2, 288
+  xy: 2, 339
   size: 512, 275
   orig: 512, 275
   offset: 0, 0
   index: -1
+board
+  rotate: false
+  xy: 516, 577
+  size: 50, 5
+  orig: 50, 5
+  offset: 0, 0
+  index: -1
 crate
   rotate: false
-  xy: 1004, 804
+  xy: 1004, 855
   size: 11, 11
   orig: 11, 11
   offset: 0, 0
   index: -1
 error
   rotate: false
-  xy: 2, 2
+  xy: 2, 53
   size: 58, 32
   orig: 58, 32
   offset: 0, 0
   index: -1
 forest_background
   rotate: false
-  xy: 2, 36
+  xy: 2, 87
   size: 500, 250
   orig: 500, 250
   offset: 0, 0
   index: -1
 health
   rotate: false
-  xy: 516, 533
+  xy: 516, 584
   size: 300, 30
   orig: 300, 30
   offset: 0, 0
   index: -1
 mountains
   rotate: false
-  xy: 2, 565
+  xy: 2, 616
   size: 1000, 250
   orig: 1000, 250
   offset: 0, 0
   index: -1
 pause
   rotate: false
-  xy: 516, 482
+  xy: 2, 2
   size: 43, 49
   orig: 43, 49
   offset: 0, 0
   index: -1
 test
   rotate: false
-  xy: 818, 542
+  xy: 818, 593
   size: 21, 21
   orig: 21, 21
   offset: 0, 0
@@ -183,13 +190,6 @@ zombie_run
   size: 28, 28
   orig: 28, 28
   offset: 0, 0
-  index: 8
-zombie_run
-  rotate: false
-  xy: 2, 2
-  size: 28, 28
-  orig: 28, 28
-  offset: 0, 0
   index: 4
 zombie_run
   rotate: false
@@ -205,6 +205,13 @@ zombie_run
   orig: 28, 28
   offset: 0, 0
   index: 3
+zombie_run
+  rotate: false
+  xy: 2, 2
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: 8
 zombie_run
   rotate: false
   xy: 32, 2

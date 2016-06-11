@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
+import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 import com.matthewmohandiss.zombiegame.components.*;
 import com.matthewmohandiss.zombiegame.systems.ControlSystem;
 import com.matthewmohandiss.zombiegame.systems.PhysicsSystem;
@@ -17,19 +19,38 @@ import com.matthewmohandiss.zombiegame.systems.PhysicsSystem;
  * Created by Matthew on 5/27/16.
  */
 public class MainMenu extends ScreenAdapter implements InputProcessor {
+	public Entity player;
+	Vector3 testPoint = new Vector3();
 	private GameLauncher window;
 	private World physicsWorld;
 	private Box2DDebugRenderer debugRenderer;
-	public Entity player;
+	private Body touchedBody;
+	private MouseJointDef mouseJointDef = new MouseJointDef();
+	private MouseJoint mouseJoint;
+	QueryCallback callback = new QueryCallback() {
+		@Override
+		public boolean reportFixture(Fixture fixture) {
+			if (fixture.testPoint(testPoint.x, testPoint.y) && fixture.getBody() != Mappers.phm.get(player).physicsBody) {
+				mouseJointDef.bodyB = fixture.getBody();
+				mouseJointDef.target.set(testPoint.x, testPoint.y);
+				mouseJoint = (MouseJoint) physicsWorld.createJoint(mouseJointDef);
+				return true;
+			}
+			return false;
+		}
+	};
+	private Vector2 touchLocation = new Vector2();
 
 	public MainMenu(GameLauncher window) {
 		Gdx.input.setInputProcessor(this);
 		this.window = window;
 
 		initBox2D();
-		createPlayer();
 		createBackground();
+		createPlayer();
+		//createZombie();
 		createCrate();
+		createBoard();
 
 		ControlSystem controlSystem = new ControlSystem(window.engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).first());
 		controlSystem.priority = 0;
@@ -68,7 +89,7 @@ public class MainMenu extends ScreenAdapter implements InputProcessor {
 		bodyDef.linearDamping = 0.5f;
 		Body body = physicsWorld.createBody(bodyDef);
 		PolygonShape shape = new PolygonShape();
-		shape.setAsBox(size.width / 2, size.height / 2);
+		shape.setAsBox(size.width / 4, size.height / 2);
 
 		FixtureDef fixtureDef = new FixtureDef();
 		fixtureDef.shape = shape;
@@ -103,39 +124,60 @@ public class MainMenu extends ScreenAdapter implements InputProcessor {
 		Entity zombie = window.engine.createEntity();
 
 		PositionComponent position = window.engine.createComponent(PositionComponent.class);
-		position.x = 200;
-		position.y = 50;
+		position.x = 50;
+		position.y = 20;
 		position.z = 1;
 		zombie.add(position);
 
 		SizeComponent size = window.engine.createComponent(SizeComponent.class);
-		size.width = Assets.player_run.first().getRegionWidth();
-		size.height = Assets.player_run.first().getRegionHeight();
+		size.width = Assets.zombie_idle.getRegionWidth();
+		size.height = Assets.zombie_idle.getRegionHeight();
 		zombie.add(size);
 
 		TextureComponent texture = window.engine.createComponent(TextureComponent.class);
-		texture.texture = Assets.player_idle;
+		texture.texture = Assets.zombie_idle;
 		zombie.add(texture);
+
+		PhysicsComponent physicsComponent = window.engine.createComponent(PhysicsComponent.class);
+		BodyDef bodyDef = new BodyDef();
+		bodyDef.type = BodyDef.BodyType.DynamicBody;
+		bodyDef.position.set(position.x, position.y);
+		bodyDef.fixedRotation = true;
+		bodyDef.linearDamping = 0.5f;
+		Body body = physicsWorld.createBody(bodyDef);
+		PolygonShape shape = new PolygonShape();
+		shape.setAsBox(size.width / 4, size.height / 2);
+
+		FixtureDef fixtureDef = new FixtureDef();
+		fixtureDef.shape = shape;
+		fixtureDef.density = .13f;
+		fixtureDef.friction = 0.9f;
+
+		body.createFixture(fixtureDef);
+		physicsComponent.physicsBody = body;
+		physicsComponent.maxVelocity = 30;
+		shape.dispose();
+		zombie.add(physicsComponent);
 
 		AnimationComponent animation = window.engine.createComponent(AnimationComponent.class);
 		animation.animations.put(PlayerState.running.ordinal(), new Animation(0.15f, Assets.zombie_run));
+		animation.idleTexture = Assets.zombie_idle;
+		animation.jumpTexture = Assets.player_jump;
+		animation.fallTexture = Assets.player_fall;
 		zombie.add(animation);
 
 		StateComponent state = window.engine.createComponent(StateComponent.class);
 		state.set(PlayerState.idle);
 		zombie.add(state);
 
-		this.player = zombie;
 		window.engine.addEntity(zombie);
-		Entity cam = window.engine.getEntitiesFor(Family.all(CameraComponent.class).get()).first();
-		Mappers.cm.get(cam).target = zombie;
 	}
 
 	private void createCrate() {
 		Entity test = window.engine.createEntity();
 
 		PositionComponent position = window.engine.createComponent(PositionComponent.class);
-		position.x = 50;
+		position.x = 80;
 		position.y = 50;
 		position.z = 1;
 		test.add(position);
@@ -147,6 +189,46 @@ public class MainMenu extends ScreenAdapter implements InputProcessor {
 
 		TextureComponent texture = window.engine.createComponent(TextureComponent.class);
 		texture.texture = Assets.crate;
+		test.add(texture);
+
+		PhysicsComponent physicsComponent = window.engine.createComponent(PhysicsComponent.class);
+		BodyDef bodyDef = new BodyDef();
+		bodyDef.type = BodyDef.BodyType.DynamicBody;
+		bodyDef.position.set(position.x, position.y);
+		Body body = physicsWorld.createBody(bodyDef);
+		PolygonShape shape = new PolygonShape();
+		shape.setAsBox(size.width / 2, size.height / 2);
+
+		FixtureDef fixtureDef = new FixtureDef();
+		fixtureDef.shape = shape;
+		fixtureDef.density = 1.5f;
+		fixtureDef.friction = 0.9f;
+
+		body.createFixture(fixtureDef);
+		physicsComponent.physicsBody = body;
+		physicsComponent.maxVelocity = 30;
+		shape.dispose();
+		test.add(physicsComponent);
+
+		window.engine.addEntity(test);
+	}
+
+	private void createBoard() {
+		Entity test = window.engine.createEntity();
+
+		PositionComponent position = window.engine.createComponent(PositionComponent.class);
+		position.x = 50;
+		position.y = 75;
+		position.z = 1;
+		test.add(position);
+
+		SizeComponent size = window.engine.createComponent(SizeComponent.class);
+		size.width = Assets.board.getRegionWidth();
+		size.height = Assets.board.getRegionHeight();
+		test.add(size);
+
+		TextureComponent texture = window.engine.createComponent(TextureComponent.class);
+		texture.texture = Assets.board;
 		test.add(texture);
 
 		PhysicsComponent physicsComponent = window.engine.createComponent(PhysicsComponent.class);
@@ -215,6 +297,11 @@ public class MainMenu extends ScreenAdapter implements InputProcessor {
 		Box2D.init();
 		physicsWorld = new World(new Vector2(0, -10), true);
 		debugRenderer = new Box2DDebugRenderer();
+
+		mouseJointDef.bodyA = physicsWorld.createBody(new BodyDef());
+		mouseJointDef.collideConnected = true;
+		mouseJointDef.dampingRatio = 10;
+		mouseJointDef.maxForce = 10000;
 	}
 
 	@Override
@@ -275,19 +362,29 @@ public class MainMenu extends ScreenAdapter implements InputProcessor {
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		Vector3 touch = new Vector3();
-		Vector3 location = window.camera.unproject(touch.set(Gdx.input.getX(), Gdx.input.getY(), 0));
-		System.out.println("touch at (" + location.x + ", " + location.y + ")");
-		return false;
-	}
+		testPoint = new Vector3(screenX, screenY, 0);
+		window.camera.unproject(testPoint);
+		physicsWorld.QueryAABB(callback, testPoint.x, testPoint.y, testPoint.x, testPoint.y);
 
-	@Override
-	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 		return false;
 	}
 
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
+		if (mouseJoint != null) {
+			window.camera.unproject(testPoint.set(screenX, screenY, 0));
+			mouseJoint.setTarget(touchLocation.set(testPoint.x, testPoint.y));
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+		if (mouseJoint != null) {
+			physicsWorld.destroyJoint(mouseJoint);
+			mouseJoint = null;
+		}
 		return false;
 	}
 
