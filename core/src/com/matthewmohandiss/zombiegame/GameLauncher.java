@@ -16,8 +16,6 @@ import com.matthewmohandiss.zombiegame.systems.RenderingSystem;
 public class GameLauncher extends Game {
 	public SpriteBatch batch;
 	public PooledEngine engine;
-	public float WINDOW_WIDTH = 16*5;
-	public float WINDOW_HEIGHT = 9*5;
 	public OrthographicCamera camera;
 
 	@Override
@@ -29,9 +27,10 @@ public class GameLauncher extends Game {
 		Entity cam = engine.createEntity();
 		cam.add(engine.createComponent(CameraComponent.class));
 		engine.addEntity(cam);
-		Mappers.cm.get(cam).camera = new OrthographicCamera(WINDOW_WIDTH, WINDOW_HEIGHT);
+		Mappers.cm.get(cam).camera = new OrthographicCamera(80f, 45f);
 		Mappers.cm.get(cam).camera.update();
 		camera = cam.getComponent(CameraComponent.class).camera;
+		camera.zoom = 5;
 
 		CameraSystem cameraSystem = new CameraSystem();
 		cameraSystem.priority = 4;
@@ -56,7 +55,7 @@ public class GameLauncher extends Game {
 
 	@Override
 	public void resize(int width, int height) {
-		camera.viewportHeight = (WINDOW_WIDTH / width) * height;
+		camera.viewportHeight = (80f / width) * height;
 		camera.update();
 	}
 }

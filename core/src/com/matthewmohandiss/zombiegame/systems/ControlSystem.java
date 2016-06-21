@@ -51,6 +51,7 @@ public class ControlSystem extends EntitySystem {
 	public void shoot() {
 		if (stateComponent.state == PlayerState.idle || stateComponent.state == PlayerState.running) {
 			stateComponent.set(PlayerState.shooting);
+
 		}
 	}
 

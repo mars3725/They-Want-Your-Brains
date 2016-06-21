@@ -24,7 +24,6 @@ public class MainMenu extends ScreenAdapter implements InputProcessor {
 	private GameLauncher window;
 	private World physicsWorld;
 	private Box2DDebugRenderer debugRenderer;
-	private Body touchedBody;
 	private MouseJointDef mouseJointDef = new MouseJointDef();
 	private MouseJoint mouseJoint;
 	QueryCallback callback = new QueryCallback() {
@@ -64,7 +63,7 @@ public class MainMenu extends ScreenAdapter implements InputProcessor {
 		Entity player = window.engine.createEntity();
 
 		PositionComponent position = window.engine.createComponent(PositionComponent.class);
-		position.x = 30;
+		position.x = 100;
 		position.y = 20;
 		position.z = 1;
 		player.add(position);
@@ -177,7 +176,7 @@ public class MainMenu extends ScreenAdapter implements InputProcessor {
 		Entity test = window.engine.createEntity();
 
 		PositionComponent position = window.engine.createComponent(PositionComponent.class);
-		position.x = 80;
+		position.x = 30;
 		position.y = 50;
 		position.z = 1;
 		test.add(position);
@@ -291,17 +290,20 @@ public class MainMenu extends ScreenAdapter implements InputProcessor {
 		background.add(physicsComponent);
 
 		window.engine.addEntity(background);
+		Entity cam = window.engine.getEntitiesFor(Family.all(CameraComponent.class).get()).first();
+		Mappers.cm.get(cam).maxX = size.width;
+		Mappers.cm.get(cam).maxY = size.height;
 	}
 
 	private void initBox2D() {
 		Box2D.init();
-		physicsWorld = new World(new Vector2(0, -10), true);
+		physicsWorld = new World(new Vector2(0, -12), true);
 		debugRenderer = new Box2DDebugRenderer();
 
 		mouseJointDef.bodyA = physicsWorld.createBody(new BodyDef());
 		mouseJointDef.collideConnected = true;
 		mouseJointDef.dampingRatio = 10;
-		mouseJointDef.maxForce = 10000;
+		mouseJointDef.maxForce = 20000;
 	}
 
 	@Override
@@ -364,6 +366,7 @@ public class MainMenu extends ScreenAdapter implements InputProcessor {
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 		testPoint = new Vector3(screenX, screenY, 0);
 		window.camera.unproject(testPoint);
+		System.out.println("touch at: " + testPoint);
 		physicsWorld.QueryAABB(callback, testPoint.x, testPoint.y, testPoint.x, testPoint.y);
 
 		return false;

@@ -18,6 +18,13 @@ board
   orig: 50, 5
   offset: 0, 0
   index: -1
+bullet
+  rotate: false
+  xy: 504, 334
+  size: 3, 3
+  orig: 3, 3
+  offset: 0, 0
+  index: -1
 crate
   rotate: false
   xy: 1004, 855
@@ -142,13 +149,6 @@ player_shoot
   size: 18, 28
   orig: 18, 28
   offset: 0, 0
-  index: 3
-player_shoot
-  rotate: false
-  xy: 162, 2
-  size: 18, 28
-  orig: 18, 28
-  offset: 0, 0
   index: 6
 player_shoot
   rotate: false
@@ -157,6 +157,13 @@ player_shoot
   orig: 18, 28
   offset: 0, 0
   index: 7
+player_shoot
+  rotate: false
+  xy: 162, 2
+  size: 18, 28
+  orig: 18, 28
+  offset: 0, 0
+  index: 3
 player_shoot
   rotate: false
   xy: 182, 2
@@ -197,6 +204,13 @@ zombie_run
   size: 28, 28
   orig: 28, 28
   offset: 0, 0
+  index: 8
+zombie_run
+  rotate: false
+  xy: 2, 2
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
   index: 7
 zombie_run
   rotate: false
@@ -205,13 +219,6 @@ zombie_run
   orig: 28, 28
   offset: 0, 0
   index: 3
-zombie_run
-  rotate: false
-  xy: 2, 2
-  size: 28, 28
-  orig: 28, 28
-  offset: 0, 0
-  index: 8
 zombie_run
   rotate: false
   xy: 32, 2
