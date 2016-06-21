@@ -42,7 +42,7 @@ public class GameLauncher extends Game {
 		animationSystem.priority = 2;
 		engine.addSystem(animationSystem);
 
-		setScreen(new MainMenu(this));
+		setScreen(new GameScreen(this));
 	}
 
 	@Override

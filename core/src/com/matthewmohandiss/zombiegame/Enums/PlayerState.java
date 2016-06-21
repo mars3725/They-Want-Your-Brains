@@ -1,4 +1,4 @@
-package com.matthewmohandiss.zombiegame;
+package com.matthewmohandiss.zombiegame.Enums;
 
 /**
  * Created by Matthew on 6/3/16.

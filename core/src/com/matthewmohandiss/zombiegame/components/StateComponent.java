@@ -1,7 +1,7 @@
 package com.matthewmohandiss.zombiegame.components;
 
 import com.badlogic.ashley.core.Component;
-import com.matthewmohandiss.zombiegame.PlayerState;
+import com.matthewmohandiss.zombiegame.Enums.PlayerState;
 
 /**
  * Created by Matthew on 5/31/16.
