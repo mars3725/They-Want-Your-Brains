@@ -41,6 +41,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 	};
 	private ObjectCreator objectCreator = new ObjectCreator();
 	private Vector2 touchLocation = new Vector2();
+	private HUD hud;
 
 	public GameScreen(GameLauncher window) {
 		Gdx.input.setInputProcessor(this);
@@ -50,6 +51,8 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 		createBackground();
 		createPlayer();
 		createZombie();
+		hud = new HUD(window, this);
+		hud.createDevHUD();
 
 		ControlSystem controlSystem = new ControlSystem(window.engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).first());
 		controlSystem.priority = 0;
@@ -273,7 +276,6 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 		} else if (keycode == 22 && Mappers.stm.get(player).state == PlayerState.running) {
 			window.engine.getSystem(ControlSystem.class).idle();
 		}
-
 		return false;
 	}
 
@@ -317,6 +319,6 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 		//http://gafferongames.com/game-physics/fix-your-timestep/
 		debugRenderer.render(physicsWorld, window.camera.combined);
 		physicsWorld.step(1 / 60f, 6, 2);
+		hud.updateDevHUD();
 	}
-
 }

@@ -4,8 +4,8 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.matthewmohandiss.zombiegame.Enums.PlayerState;
+import com.matthewmohandiss.zombiegame.Mappers;
 import com.matthewmohandiss.zombiegame.components.AnimationComponent;
-import com.matthewmohandiss.zombiegame.components.Mappers;
 import com.matthewmohandiss.zombiegame.components.StateComponent;
 
 /**

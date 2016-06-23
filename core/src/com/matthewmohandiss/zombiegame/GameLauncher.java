@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.matthewmohandiss.zombiegame.components.CameraComponent;
-import com.matthewmohandiss.zombiegame.components.Mappers;
 import com.matthewmohandiss.zombiegame.systems.AnimationSystem;
 import com.matthewmohandiss.zombiegame.systems.CameraSystem;
 import com.matthewmohandiss.zombiegame.systems.RenderingSystem;
@@ -17,6 +16,7 @@ public class GameLauncher extends Game {
 	public SpriteBatch batch;
 	public PooledEngine engine;
 	public OrthographicCamera camera;
+	public OrthographicCamera hudCamera;
 
 	@Override
 	public void create() {
@@ -27,10 +27,18 @@ public class GameLauncher extends Game {
 		Entity cam = engine.createEntity();
 		cam.add(engine.createComponent(CameraComponent.class));
 		engine.addEntity(cam);
-		Mappers.cm.get(cam).camera = new OrthographicCamera(80f, 45f);
+		Mappers.cm.get(cam).camera = new OrthographicCamera(160f, 90f);
 		Mappers.cm.get(cam).camera.update();
 		camera = cam.getComponent(CameraComponent.class).camera;
-		camera.zoom = 5;
+		camera.zoom = 2;
+
+		Entity hudCam = engine.createEntity();
+		hudCam.add(engine.createComponent(CameraComponent.class));
+		engine.addEntity(hudCam);
+		Mappers.cm.get(hudCam).camera = new OrthographicCamera(160f, 90f);
+		Mappers.cm.get(hudCam).camera.update();
+		hudCamera = hudCam.getComponent(CameraComponent.class).camera;
+		hudCamera.zoom = 4;
 
 		CameraSystem cameraSystem = new CameraSystem();
 		cameraSystem.priority = 4;
@@ -55,7 +63,7 @@ public class GameLauncher extends Game {
 
 	@Override
 	public void resize(int width, int height) {
-		camera.viewportHeight = (80f / width) * height;
+		camera.viewportHeight = (160f / width) * height;
 		camera.update();
 	}
 }

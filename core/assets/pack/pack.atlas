@@ -66,6 +66,20 @@ size: 128,16
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
+Untitled
+  rotate: false
+  xy: 67, 3
+  size: 10, 10
+  orig: 10, 10
+  offset: 0, 0
+  index: -1
+trophy
+  rotate: false
+  xy: 67, 3
+  size: 10, 10
+  orig: 10, 10
+  offset: 0, 0
+  index: -1
 crate
   rotate: false
   xy: 54, 2
@@ -78,13 +92,6 @@ log
   xy: 2, 8
   size: 50, 5
   orig: 50, 5
-  offset: 0, 0
-  index: -1
-trophy
-  rotate: false
-  xy: 67, 3
-  size: 10, 10
-  orig: 10, 10
   offset: 0, 0
   index: -1
 
@@ -162,7 +169,7 @@ player_shoot
   size: 18, 28
   orig: 18, 28
   offset: 0, 0
-  index: 7
+  index: 6
 player_shoot
   rotate: false
   xy: 162, 2
@@ -176,7 +183,7 @@ player_shoot
   size: 18, 28
   orig: 18, 28
   offset: 0, 0
-  index: 6
+  index: 7
 player_shoot
   rotate: false
   xy: 182, 2
@@ -210,7 +217,7 @@ zombie_run
   size: 28, 28
   orig: 28, 28
   offset: 0, 0
-  index: 4
+  index: 8
 zombie_run
   rotate: false
   xy: 2, 2
@@ -224,7 +231,7 @@ zombie_run
   size: 28, 28
   orig: 28, 28
   offset: 0, 0
-  index: 8
+  index: 4
 zombie_run
   rotate: false
   xy: 2, 2

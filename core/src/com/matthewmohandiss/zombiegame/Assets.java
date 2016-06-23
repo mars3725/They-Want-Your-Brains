@@ -66,7 +66,7 @@ public class Assets {
 
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("font.ttf"));
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-		parameter.size = 50;
+		//parameter.size = 23;
 		font = generator.generateFont(parameter);
 		font.setColor(Color.GRAY);
 	}
@@ -78,5 +78,6 @@ public class Assets {
 	public static void playSound (Sound sound) {
 		sound.play(1);
 	}
+
 }
 

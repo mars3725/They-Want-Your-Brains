@@ -1,6 +1,7 @@
-package com.matthewmohandiss.zombiegame.components;
+package com.matthewmohandiss.zombiegame;
 
 import com.badlogic.ashley.core.ComponentMapper;
+import com.matthewmohandiss.zombiegame.components.*;
 
 /**
  * Created by Matthew on 5/27/16.
@@ -13,4 +14,6 @@ public class Mappers {
 	public static ComponentMapper<AnimationComponent> am = ComponentMapper.getFor(AnimationComponent.class);
 	public static ComponentMapper<StateComponent> stm = ComponentMapper.getFor(StateComponent.class);
 	public static ComponentMapper<PhysicsComponent> phm = ComponentMapper.getFor(PhysicsComponent.class);
+	public static ComponentMapper<HUDComponent> hm = ComponentMapper.getFor(HUDComponent.class);
+	public static ComponentMapper<TextComponent> txm = ComponentMapper.getFor(TextComponent.class);
 }

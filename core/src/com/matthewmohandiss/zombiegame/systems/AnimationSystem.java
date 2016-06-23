@@ -6,8 +6,8 @@ import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.matthewmohandiss.zombiegame.Assets;
+import com.matthewmohandiss.zombiegame.Mappers;
 import com.matthewmohandiss.zombiegame.components.AnimationComponent;
-import com.matthewmohandiss.zombiegame.components.Mappers;
 import com.matthewmohandiss.zombiegame.components.StateComponent;
 import com.matthewmohandiss.zombiegame.components.TextureComponent;
 
