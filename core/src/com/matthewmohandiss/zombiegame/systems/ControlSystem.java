@@ -50,6 +50,7 @@ public class ControlSystem extends EntitySystem {
 
 	public void shoot() {
 		if (stateComponent.state == PlayerState.idle || stateComponent.state == PlayerState.running) {
+			physicsBody.setLinearVelocity(0, 0);
 			stateComponent.set(PlayerState.shooting);
 
 		}

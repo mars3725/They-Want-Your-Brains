@@ -16,10 +16,12 @@ import com.matthewmohandiss.zombiegame.components.*;
 import com.matthewmohandiss.zombiegame.systems.ControlSystem;
 import com.matthewmohandiss.zombiegame.systems.PhysicsSystem;
 
+import java.util.ArrayList;
+
 /**
  * Created by Matthew on 6/21/16.
  */
-public class GameScreen extends ScreenAdapter implements InputProcessor {
+public class GameScreen extends ScreenAdapter implements InputProcessor, ContactListener {
 	public Entity player;
 	Vector3 testPoint = new Vector3();
 	private GameLauncher window;
@@ -39,6 +41,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 			return false;
 		}
 	};
+	private ArrayList<Body> bodiesForRemoval = new ArrayList<>();
 	private ObjectCreator objectCreator = new ObjectCreator();
 	private Vector2 touchLocation = new Vector2();
 	private HUD hud;
@@ -120,6 +123,55 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 		window.engine.addEntity(player);
 		Entity cam = window.engine.getEntitiesFor(Family.all(CameraComponent.class).get()).first();
 		Mappers.cm.get(cam).target = player;
+	}
+
+	private void createBullet() {
+		Entity bullet = window.engine.createEntity();
+
+		PositionComponent position = window.engine.createComponent(PositionComponent.class);
+		if (Mappers.am.get(player).flipped) {
+			position.x = Mappers.phm.get(player).physicsBody.getPosition().x - 7;
+		} else {
+			position.x = Mappers.phm.get(player).physicsBody.getPosition().x + 7;
+		}
+		position.y = Mappers.phm.get(player).physicsBody.getPosition().y + 5;
+		position.z = 1;
+		bullet.add(position);
+
+		SizeComponent size = window.engine.createComponent(SizeComponent.class);
+		size.width = Assets.bullet.getRegionWidth();
+		size.height = Assets.bullet.getRegionHeight();
+		bullet.add(size);
+
+		TextureComponent texture = window.engine.createComponent(TextureComponent.class);
+		texture.texture = Assets.bullet;
+		bullet.add(texture);
+
+		BulletComponent bulletComponent = window.engine.createComponent(BulletComponent.class);
+		bullet.add(bulletComponent);
+
+		PhysicsComponent physicsComponent = window.engine.createComponent(PhysicsComponent.class);
+		BodyDef bodyDef = new BodyDef();
+		bodyDef.type = BodyDef.BodyType.DynamicBody;
+		bodyDef.position.set(position.x, position.y);
+		Body body = physicsWorld.createBody(bodyDef);
+		PolygonShape shape = new PolygonShape();
+		shape.setAsBox(size.width / 2, size.height / 2);
+
+		FixtureDef fixtureDef = new FixtureDef();
+		fixtureDef.shape = shape;
+		fixtureDef.density = .5f;
+
+		body.createFixture(fixtureDef);
+		physicsComponent.physicsBody = body;
+		if (Mappers.am.get(player).flipped) {
+			physicsComponent.physicsBody.setLinearVelocity(-1500, 0);
+		} else {
+			physicsComponent.physicsBody.setLinearVelocity(1500, 0);
+		}
+		shape.dispose();
+		bullet.add(physicsComponent);
+		window.engine.addEntity(bullet);
 	}
 
 	private void createZombie() {
@@ -221,12 +273,51 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 	private void initBox2D() {
 		Box2D.init();
 		physicsWorld = new World(new Vector2(0, -12), true);
+		physicsWorld.setContactListener(this);
 		debugRenderer = new Box2DDebugRenderer();
 
 		mouseJointDef.bodyA = physicsWorld.createBody(new BodyDef());
 		mouseJointDef.collideConnected = true;
 		mouseJointDef.dampingRatio = 10;
 		mouseJointDef.maxForce = 20000;
+	}
+
+	@Override
+	public void beginContact(Contact contact) {
+		Entity entityA = getEntityForPhysicsBody(contact.getFixtureA().getBody());
+		Entity entityB = getEntityForPhysicsBody(contact.getFixtureB().getBody());
+		if (Mappers.bm.get(entityA) != null && Mappers.bm.get(entityB) == null) {
+			bodiesForRemoval.add(contact.getFixtureA().getBody());
+			window.engine.removeEntity(entityA);
+		} else if (Mappers.bm.get(entityB) != null && Mappers.bm.get(entityA) == null) {
+			bodiesForRemoval.add(contact.getFixtureB().getBody());
+			window.engine.removeEntity(entityB);
+		}
+	}
+
+	@Override
+	public void endContact(Contact contact) {
+
+	}
+
+	@Override
+	public void preSolve(Contact contact, Manifold oldManifold) {
+
+	}
+
+	@Override
+	public void postSolve(Contact contact, ContactImpulse impulse) {
+
+	}
+
+	public Entity getEntityForPhysicsBody(Body body) {
+		for (Entity entity :
+				window.engine.getEntitiesFor(Family.all(PhysicsComponent.class).get())) {
+			if (body == Mappers.phm.get(entity).physicsBody) {
+				return entity;
+			}
+		}
+		return null;
 	}
 
 	@Override
@@ -241,7 +332,6 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 
 	@Override
 	public boolean keyDown(int keycode) {
-		Entity player = window.engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).first();
 		switch (keycode) {
 			case 19: //up
 				window.engine.getSystem(ControlSystem.class).jump();
@@ -254,6 +344,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 				break;
 			case 62: //space
 				window.engine.getSystem(ControlSystem.class).shoot();
+				createBullet();
 				break;
 			case 69: //minus
 				window.camera.zoom += 0.25;
@@ -319,6 +410,15 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 		//http://gafferongames.com/game-physics/fix-your-timestep/
 		debugRenderer.render(physicsWorld, window.camera.combined);
 		physicsWorld.step(1 / 60f, 6, 2);
+		removeBodies();
 		hud.updateDevHUD();
+	}
+
+	private void removeBodies() {
+		for (Body body :
+				bodiesForRemoval) {
+			physicsWorld.destroyBody(body);
+		}
+		bodiesForRemoval.clear();
 	}
 }
