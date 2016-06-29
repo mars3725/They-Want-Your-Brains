@@ -5,14 +5,16 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.box2d.*;
-import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
-import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.utils.Timer;
+import com.matthewmohandiss.zombiegame.Enums.Objects;
 import com.matthewmohandiss.zombiegame.Enums.PlayerState;
-import com.matthewmohandiss.zombiegame.components.*;
+import com.matthewmohandiss.zombiegame.components.CameraComponent;
+import com.matthewmohandiss.zombiegame.components.PhysicsComponent;
+import com.matthewmohandiss.zombiegame.components.PlayerComponent;
 import com.matthewmohandiss.zombiegame.systems.ControlSystem;
 import com.matthewmohandiss.zombiegame.systems.PhysicsSystem;
 
@@ -21,28 +23,14 @@ import java.util.ArrayList;
 /**
  * Created by Matthew on 6/21/16.
  */
-public class GameScreen extends ScreenAdapter implements InputProcessor, ContactListener {
+public class GameScreen extends ScreenAdapter implements InputProcessor {
 	public Entity player;
-	Vector3 testPoint = new Vector3();
-	private GameLauncher window;
-	private World physicsWorld;
+	public GameLauncher window;
+	private Vector3 touchPoint;
+	private PhysicsWorld physicsWorld;
 	private Box2DDebugRenderer debugRenderer;
-	private MouseJointDef mouseJointDef = new MouseJointDef();
-	private MouseJoint mouseJoint;
-	QueryCallback callback = new QueryCallback() {
-		@Override
-		public boolean reportFixture(Fixture fixture) {
-			if (fixture.testPoint(testPoint.x, testPoint.y) && fixture.getBody() != Mappers.phm.get(player).physicsBody) {
-				mouseJointDef.bodyB = fixture.getBody();
-				mouseJointDef.target.set(testPoint.x, testPoint.y);
-				mouseJoint = (MouseJoint) physicsWorld.createJoint(mouseJointDef);
-				return true;
-			}
-			return false;
-		}
-	};
-	private ArrayList<Body> bodiesForRemoval = new ArrayList<>();
-	private ObjectCreator objectCreator = new ObjectCreator();
+	private ArrayList<Entity> entitiesForRemoval = new ArrayList<>();
+	private ObjectCreator objectCreator;
 	private Vector2 touchLocation = new Vector2();
 	private HUD hud;
 
@@ -50,264 +38,44 @@ public class GameScreen extends ScreenAdapter implements InputProcessor, Contact
 		Gdx.input.setInputProcessor(this);
 		this.window = window;
 
-		initBox2D();
-		createBackground();
-		createPlayer();
-		createZombie();
+		physicsWorld = new PhysicsWorld(this);
+		debugRenderer = new Box2DDebugRenderer();
+		objectCreator = new ObjectCreator(window, physicsWorld.world);
 		hud = new HUD(window, this);
 		hud.createDevHUD();
+		Entity cam = window.engine.getEntitiesFor(Family.all(CameraComponent.class).get()).first();
+
+		Entity background = objectCreator.createBackground();
+		window.engine.addEntity(background);
+		Mappers.cm.get(cam).maxX = Mappers.sm.get(background).width;
+		Mappers.cm.get(cam).maxY = Mappers.sm.get(background).height;
+
+		player = objectCreator.createPlayer(100, 30);
+		window.engine.addEntity(player);
+		Mappers.cm.get(cam).target = player;
 
 		ControlSystem controlSystem = new ControlSystem(window.engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).first());
 		controlSystem.priority = 0;
 		window.engine.addSystem(controlSystem);
-		PhysicsSystem physicsSystem = new PhysicsSystem(physicsWorld);
+		PhysicsSystem physicsSystem = new PhysicsSystem(physicsWorld.world);
 		physicsSystem.priority = 1;
 		window.engine.addSystem(physicsSystem);
 	}
 
-	private void createPlayer() {
-		Entity player = window.engine.createEntity();
+	public void contactResolver(final Entity entityA, Entity entityB) {
+		if (Mappers.zm.get(entityA) != null && Mappers.bm.get(entityB) != null) {
+			Mappers.stm.get(entityA).set(PlayerState.dying);
+			Mappers.am.get(entityA).loop = false;
+			entitiesForRemoval.add(entityB);
 
-		PositionComponent position = window.engine.createComponent(PositionComponent.class);
-		position.x = 100;
-		position.y = 20;
-		position.z = 1;
-		player.add(position);
-
-		SizeComponent size = window.engine.createComponent(SizeComponent.class);
-		size.width = Assets.player_idle.getRegionWidth();
-		size.height = Assets.player_idle.getRegionHeight();
-		player.add(size);
-
-		TextureComponent texture = window.engine.createComponent(TextureComponent.class);
-		texture.texture = Assets.player_idle;
-		player.add(texture);
-
-		PlayerComponent playerComponent = window.engine.createComponent(PlayerComponent.class);
-		player.add(playerComponent);
-
-		PhysicsComponent physicsComponent = window.engine.createComponent(PhysicsComponent.class);
-		BodyDef bodyDef = new BodyDef();
-		bodyDef.type = BodyDef.BodyType.DynamicBody;
-		bodyDef.position.set(position.x, position.y);
-		bodyDef.fixedRotation = true;
-		bodyDef.linearDamping = 0.5f;
-		Body body = physicsWorld.createBody(bodyDef);
-		PolygonShape shape = new PolygonShape();
-		shape.setAsBox(size.width / 4, size.height / 2);
-
-		FixtureDef fixtureDef = new FixtureDef();
-		fixtureDef.shape = shape;
-		fixtureDef.density = .13f;
-		fixtureDef.friction = 0.9f;
-
-		body.createFixture(fixtureDef);
-		physicsComponent.physicsBody = body;
-		physicsComponent.maxVelocity = 30;
-		shape.dispose();
-		player.add(physicsComponent);
-
-		AnimationComponent animation = window.engine.createComponent(AnimationComponent.class);
-		animation.animations.put(PlayerState.running.ordinal(), new Animation(0.15f, Assets.player_run));
-		animation.animations.put(PlayerState.shooting.ordinal(), new Animation(0.3f, Assets.player_shoot));
-		animation.idleTexture = Assets.player_idle;
-		animation.jumpTexture = Assets.player_jump;
-		animation.fallTexture = Assets.player_fall;
-		player.add(animation);
-
-		StateComponent state = window.engine.createComponent(StateComponent.class);
-		state.set(PlayerState.idle);
-		player.add(state);
-
-		this.player = player;
-		window.engine.addEntity(player);
-		Entity cam = window.engine.getEntitiesFor(Family.all(CameraComponent.class).get()).first();
-		Mappers.cm.get(cam).target = player;
-	}
-
-	private void createBullet() {
-		Entity bullet = window.engine.createEntity();
-
-		PositionComponent position = window.engine.createComponent(PositionComponent.class);
-		if (Mappers.am.get(player).flipped) {
-			position.x = Mappers.phm.get(player).physicsBody.getPosition().x - 7;
-		} else {
-			position.x = Mappers.phm.get(player).physicsBody.getPosition().x + 7;
+			Timer.schedule(new Timer.Task() {
+				@Override
+				public void run() {
+					window.engine.addEntity(objectCreator.create(Objects.zombieCorpse, Mappers.pm.get(entityA).x, Mappers.pm.get(entityA).y));
+					entitiesForRemoval.add(entityA);
+				}
+			}, 1.5f);
 		}
-		position.y = Mappers.phm.get(player).physicsBody.getPosition().y + 5;
-		position.z = 1;
-		bullet.add(position);
-
-		SizeComponent size = window.engine.createComponent(SizeComponent.class);
-		size.width = Assets.bullet.getRegionWidth();
-		size.height = Assets.bullet.getRegionHeight();
-		bullet.add(size);
-
-		TextureComponent texture = window.engine.createComponent(TextureComponent.class);
-		texture.texture = Assets.bullet;
-		bullet.add(texture);
-
-		BulletComponent bulletComponent = window.engine.createComponent(BulletComponent.class);
-		bullet.add(bulletComponent);
-
-		PhysicsComponent physicsComponent = window.engine.createComponent(PhysicsComponent.class);
-		BodyDef bodyDef = new BodyDef();
-		bodyDef.type = BodyDef.BodyType.DynamicBody;
-		bodyDef.position.set(position.x, position.y);
-		Body body = physicsWorld.createBody(bodyDef);
-		PolygonShape shape = new PolygonShape();
-		shape.setAsBox(size.width / 2, size.height / 2);
-
-		FixtureDef fixtureDef = new FixtureDef();
-		fixtureDef.shape = shape;
-		fixtureDef.density = .5f;
-
-		body.createFixture(fixtureDef);
-		physicsComponent.physicsBody = body;
-		if (Mappers.am.get(player).flipped) {
-			physicsComponent.physicsBody.setLinearVelocity(-1500, 0);
-		} else {
-			physicsComponent.physicsBody.setLinearVelocity(1500, 0);
-		}
-		shape.dispose();
-		bullet.add(physicsComponent);
-		window.engine.addEntity(bullet);
-	}
-
-	private void createZombie() {
-		Entity zombie = window.engine.createEntity();
-
-		PositionComponent position = window.engine.createComponent(PositionComponent.class);
-		position.x = 50;
-		position.y = 20;
-		position.z = 1;
-		zombie.add(position);
-
-		SizeComponent size = window.engine.createComponent(SizeComponent.class);
-		size.width = Assets.zombie_idle.getRegionWidth();
-		size.height = Assets.zombie_idle.getRegionHeight();
-		zombie.add(size);
-
-		TextureComponent texture = window.engine.createComponent(TextureComponent.class);
-		texture.texture = Assets.zombie_idle;
-		zombie.add(texture);
-
-		PhysicsComponent physicsComponent = window.engine.createComponent(PhysicsComponent.class);
-		BodyDef bodyDef = new BodyDef();
-		bodyDef.type = BodyDef.BodyType.DynamicBody;
-		bodyDef.position.set(position.x, position.y);
-		bodyDef.fixedRotation = true;
-		bodyDef.linearDamping = 0.5f;
-		Body body = physicsWorld.createBody(bodyDef);
-		PolygonShape shape = new PolygonShape();
-		shape.setAsBox(size.width / 4, size.height / 2);
-
-		FixtureDef fixtureDef = new FixtureDef();
-		fixtureDef.shape = shape;
-		fixtureDef.density = .13f;
-		fixtureDef.friction = 0.9f;
-
-		body.createFixture(fixtureDef);
-		physicsComponent.physicsBody = body;
-		physicsComponent.maxVelocity = 30;
-		shape.dispose();
-		zombie.add(physicsComponent);
-
-		AnimationComponent animation = window.engine.createComponent(AnimationComponent.class);
-		animation.animations.put(PlayerState.running.ordinal(), new Animation(0.15f, Assets.zombie_run));
-		animation.idleTexture = Assets.zombie_idle;
-		animation.jumpTexture = Assets.player_jump;
-		animation.fallTexture = Assets.player_fall;
-		zombie.add(animation);
-
-		StateComponent state = window.engine.createComponent(StateComponent.class);
-		state.set(PlayerState.idle);
-		zombie.add(state);
-
-		window.engine.addEntity(zombie);
-	}
-
-	private void createBackground() {
-		Entity background = window.engine.createEntity();
-
-		PositionComponent position = window.engine.createComponent(PositionComponent.class);
-		position.x = Assets.forest_background.getRegionWidth() / 2;
-		position.y = Assets.forest_background.getRegionHeight() / 2;
-		position.z = 0;
-		background.add(position);
-
-		SizeComponent size = window.engine.createComponent(SizeComponent.class);
-		size.width = Assets.forest_background.getRegionWidth();
-		size.height = Assets.forest_background.getRegionHeight();
-		background.add(size);
-
-		TextureComponent texture = window.engine.createComponent(TextureComponent.class);
-		texture.texture = Assets.forest_background;
-		background.add(texture);
-
-		PhysicsComponent physicsComponent = window.engine.createComponent(PhysicsComponent.class);
-		BodyDef bodyDef = new BodyDef();
-		bodyDef.position.set(position.x, position.y);
-		Body body = physicsWorld.createBody(bodyDef);
-		ChainShape loop = new ChainShape();
-		Vector2[] vertices = new Vector2[4];
-		vertices[0] = new Vector2(-size.width / 2, -size.height / 2);
-		vertices[1] = new Vector2(-size.width / 2, size.height / 2);
-		vertices[2] = new Vector2(size.width / 2, size.height / 2);
-		vertices[3] = new Vector2(size.width / 2, -size.height / 2);
-		loop.createLoop(vertices);
-		FixtureDef fixtureDef = new FixtureDef();
-		fixtureDef.shape = loop;
-		fixtureDef.friction = 1.5f;
-		body.createFixture(fixtureDef);
-		physicsComponent.physicsBody = body;
-		loop.dispose();
-		background.add(physicsComponent);
-
-		window.engine.addEntity(background);
-		Entity cam = window.engine.getEntitiesFor(Family.all(CameraComponent.class).get()).first();
-		Mappers.cm.get(cam).maxX = size.width;
-		Mappers.cm.get(cam).maxY = size.height;
-	}
-
-	private void initBox2D() {
-		Box2D.init();
-		physicsWorld = new World(new Vector2(0, -12), true);
-		physicsWorld.setContactListener(this);
-		debugRenderer = new Box2DDebugRenderer();
-
-		mouseJointDef.bodyA = physicsWorld.createBody(new BodyDef());
-		mouseJointDef.collideConnected = true;
-		mouseJointDef.dampingRatio = 10;
-		mouseJointDef.maxForce = 20000;
-	}
-
-	@Override
-	public void beginContact(Contact contact) {
-		Entity entityA = getEntityForPhysicsBody(contact.getFixtureA().getBody());
-		Entity entityB = getEntityForPhysicsBody(contact.getFixtureB().getBody());
-		if (Mappers.bm.get(entityA) != null && Mappers.bm.get(entityB) == null) {
-			bodiesForRemoval.add(contact.getFixtureA().getBody());
-			window.engine.removeEntity(entityA);
-		} else if (Mappers.bm.get(entityB) != null && Mappers.bm.get(entityA) == null) {
-			bodiesForRemoval.add(contact.getFixtureB().getBody());
-			window.engine.removeEntity(entityB);
-		}
-	}
-
-	@Override
-	public void endContact(Contact contact) {
-
-	}
-
-	@Override
-	public void preSolve(Contact contact, Manifold oldManifold) {
-
-	}
-
-	@Override
-	public void postSolve(Contact contact, ContactImpulse impulse) {
-
 	}
 
 	public Entity getEntityForPhysicsBody(Body body) {
@@ -344,7 +112,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor, Contact
 				break;
 			case 62: //space
 				window.engine.getSystem(ControlSystem.class).shoot();
-				createBullet();
+				objectCreator.createBullet(player);
 				break;
 			case 69: //minus
 				window.camera.zoom += 0.25;
@@ -377,19 +145,17 @@ public class GameScreen extends ScreenAdapter implements InputProcessor, Contact
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		testPoint = new Vector3(screenX, screenY, 0);
-		window.camera.unproject(testPoint);
-		System.out.println("touch at: " + testPoint);
-		physicsWorld.QueryAABB(callback, testPoint.x, testPoint.y, testPoint.x, testPoint.y);
-
+		touchPoint.set(screenX, screenY, 0);
+		window.camera.unproject(touchPoint);
+		physicsWorld.touch(touchPoint);
 		return false;
 	}
 
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		if (mouseJoint != null) {
-			window.camera.unproject(testPoint.set(screenX, screenY, 0));
-			mouseJoint.setTarget(touchLocation.set(testPoint.x, testPoint.y));
+		if (physicsWorld.mouseJoint != null) {
+			window.camera.unproject(touchPoint.set(screenX, screenY, 0));
+			physicsWorld.mouseJoint.setTarget(new Vector2(touchPoint.x, touchPoint.y));
 			return true;
 		}
 		return false;
@@ -397,9 +163,9 @@ public class GameScreen extends ScreenAdapter implements InputProcessor, Contact
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		if (mouseJoint != null) {
-			physicsWorld.destroyJoint(mouseJoint);
-			mouseJoint = null;
+		if (physicsWorld.mouseJoint != null) {
+			physicsWorld.world.destroyJoint(physicsWorld.mouseJoint);
+			physicsWorld.mouseJoint = null;
 		}
 		return false;
 	}
@@ -408,17 +174,20 @@ public class GameScreen extends ScreenAdapter implements InputProcessor, Contact
 	public void render(float delta) {
 		window.engine.update(delta);
 		//http://gafferongames.com/game-physics/fix-your-timestep/
-		debugRenderer.render(physicsWorld, window.camera.combined);
-		physicsWorld.step(1 / 60f, 6, 2);
-		removeBodies();
+		debugRenderer.render(physicsWorld.world, window.camera.combined);
+		physicsWorld.world.step(1 / 60f, 6, 2);
+		removeEntities();
 		hud.updateDevHUD();
 	}
 
-	private void removeBodies() {
-		for (Body body :
-				bodiesForRemoval) {
-			physicsWorld.destroyBody(body);
+	private void removeEntities() {
+		for (Entity entity :
+				entitiesForRemoval) {
+			if (Mappers.phm.get(entity) != null) {
+				physicsWorld.world.destroyBody(Mappers.phm.get(entity).physicsBody);
+			}
+			window.engine.removeEntity(entity);
 		}
-		bodiesForRemoval.clear();
+		entitiesForRemoval.clear();
 	}
 }

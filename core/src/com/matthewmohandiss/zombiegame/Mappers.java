@@ -17,4 +17,7 @@ public class Mappers {
 	public static ComponentMapper<HUDComponent> hm = ComponentMapper.getFor(HUDComponent.class);
 	public static ComponentMapper<TextComponent> txm = ComponentMapper.getFor(TextComponent.class);
 	public static ComponentMapper<BulletComponent> bm = ComponentMapper.getFor(BulletComponent.class);
+	public static ComponentMapper<ZombieComponent> zm = ComponentMapper.getFor(ZombieComponent.class);
+	public static ComponentMapper<PlayerComponent> plm = ComponentMapper.getFor(PlayerComponent.class);
+	public static ComponentMapper<DraggableComponent> dc = ComponentMapper.getFor(DraggableComponent.class);
 }

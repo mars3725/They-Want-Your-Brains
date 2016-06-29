@@ -200,69 +200,125 @@ player_shoot
   index: 5
 
 pack4.png
-size: 256,32
+size: 512,32
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
-zombie_idle
+zombie_die
   rotate: false
   xy: 2, 2
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: 1
+zombie_die
+  rotate: false
+  xy: 32, 2
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: 2
+zombie_die
+  rotate: false
+  xy: 62, 2
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: 3
+zombie_die
+  rotate: false
+  xy: 92, 2
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: 4
+zombie_die
+  rotate: false
+  xy: 122, 2
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: 5
+zombie_die
+  rotate: false
+  xy: 152, 2
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: 6
+zombie_die
+  rotate: false
+  xy: 152, 2
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: 7
+zombie_die
+  rotate: false
+  xy: 182, 2
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: 8
+zombie_idle
+  rotate: false
+  xy: 212, 2
   size: 28, 28
   orig: 28, 28
   offset: 0, 0
   index: -1
 zombie_run
   rotate: false
-  xy: 2, 2
-  size: 28, 28
-  orig: 28, 28
-  offset: 0, 0
-  index: 8
-zombie_run
-  rotate: false
-  xy: 2, 2
-  size: 28, 28
-  orig: 28, 28
-  offset: 0, 0
-  index: 4
-zombie_run
-  rotate: false
-  xy: 2, 2
-  size: 28, 28
-  orig: 28, 28
-  offset: 0, 0
-  index: 3
-zombie_run
-  rotate: false
-  xy: 2, 2
-  size: 28, 28
-  orig: 28, 28
-  offset: 0, 0
-  index: 7
-zombie_run
-  rotate: false
-  xy: 32, 2
+  xy: 242, 2
   size: 28, 28
   orig: 28, 28
   offset: 0, 0
   index: 1
 zombie_run
   rotate: false
-  xy: 62, 2
+  xy: 272, 2
   size: 28, 28
   orig: 28, 28
   offset: 0, 0
   index: 2
 zombie_run
   rotate: false
-  xy: 92, 2
+  xy: 302, 2
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: 3
+zombie_run
+  rotate: false
+  xy: 302, 2
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: 7
+zombie_run
+  rotate: false
+  xy: 302, 2
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: 4
+zombie_run
+  rotate: false
+  xy: 302, 2
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: 8
+zombie_run
+  rotate: false
+  xy: 332, 2
   size: 28, 28
   orig: 28, 28
   offset: 0, 0
   index: 5
 zombie_run
   rotate: false
-  xy: 122, 2
+  xy: 362, 2
   size: 28, 28
   orig: 28, 28
   offset: 0, 0
