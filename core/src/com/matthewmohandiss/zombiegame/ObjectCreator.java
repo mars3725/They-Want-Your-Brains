@@ -264,9 +264,14 @@ public class ObjectCreator {
 		Entity bullet;
 		if (Mappers.am.get(player).flipped) {
 			bullet = createGenericEntity(Assets.bullet, Mappers.phm.get(player).physicsBody.getPosition().x - 7, Mappers.phm.get(player).physicsBody.getPosition().y);
-			Mappers.tm.get(bullet).texture.flip(false, true);
+			if (!Mappers.tm.get(bullet).texture.isFlipX()) {
+				Mappers.tm.get(bullet).texture.flip(true, false);
+			}
 		} else {
 			bullet = createGenericEntity(Assets.bullet, Mappers.phm.get(player).physicsBody.getPosition().x + 7, Mappers.phm.get(player).physicsBody.getPosition().y);
+			if (Mappers.tm.get(bullet).texture.isFlipX()) {
+				Mappers.tm.get(bullet).texture.flip(false, false);
+			}
 		}
 
 		BulletComponent bulletComponent = window.engine.createComponent(BulletComponent.class);
