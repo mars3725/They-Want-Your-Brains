@@ -13,14 +13,15 @@ public class PhysicsWorld implements ContactListener {
 	public World world;
 	public MouseJointDef mouseJointDef = new MouseJointDef();
 	public MouseJoint mouseJoint;
+	public Vector3 touchPoint = new Vector3();
+	public Vector2 location = new Vector2();
 	private GameScreen game;
-	private Vector3 testPoint = new Vector3();
 	QueryCallback callback = new QueryCallback() {
 		@Override
 		public boolean reportFixture(Fixture fixture) {
-			if (fixture.testPoint(testPoint.x, testPoint.y) && Mappers.dc.get(game.getEntityForPhysicsBody(fixture.getBody())) != null) {
+			if (fixture.testPoint(touchPoint.x, touchPoint.y) && Mappers.dc.get(game.getEntityForPhysicsBody(fixture.getBody())) != null) {
 				mouseJointDef.bodyB = fixture.getBody();
-				mouseJointDef.target.set(testPoint.x, testPoint.y);
+				mouseJointDef.target.set(touchPoint.x, touchPoint.y);
 				mouseJoint = (MouseJoint) world.createJoint(mouseJointDef);
 				return true;
 			}
@@ -41,7 +42,7 @@ public class PhysicsWorld implements ContactListener {
 	}
 
 	public void touch(Vector3 testPoint) {
-		System.out.println("touch at: " + testPoint);
+		//System.out.println("touch at: " + testPoint);
 		world.QueryAABB(callback, testPoint.x, testPoint.y, testPoint.x, testPoint.y);
 	}
 

@@ -5,8 +5,6 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.utils.Timer;
@@ -26,12 +24,10 @@ import java.util.ArrayList;
 public class GameScreen extends ScreenAdapter implements InputProcessor {
 	public Entity player;
 	public GameLauncher window;
-	private Vector3 touchPoint;
 	private PhysicsWorld physicsWorld;
 	private Box2DDebugRenderer debugRenderer;
 	private ArrayList<Entity> entitiesForRemoval = new ArrayList<>();
 	private ObjectCreator objectCreator;
-	private Vector2 touchLocation = new Vector2();
 	private HUD hud;
 
 	public GameScreen(GameLauncher window) {
@@ -60,6 +56,12 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 		PhysicsSystem physicsSystem = new PhysicsSystem(physicsWorld.world);
 		physicsSystem.priority = 1;
 		window.engine.addSystem(physicsSystem);
+
+		play();
+	}
+
+	private void play() {
+		window.engine.addEntity(objectCreator.create(Objects.crate, 20, 20));
 	}
 
 	public void contactResolver(final Entity entityA, Entity entityB) {
@@ -145,17 +147,17 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		touchPoint.set(screenX, screenY, 0);
-		window.camera.unproject(touchPoint);
-		physicsWorld.touch(touchPoint);
+		physicsWorld.touchPoint.set(screenX, screenY, 0);
+		window.camera.unproject(physicsWorld.touchPoint);
+		physicsWorld.touch(physicsWorld.touchPoint);
 		return false;
 	}
 
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
 		if (physicsWorld.mouseJoint != null) {
-			window.camera.unproject(touchPoint.set(screenX, screenY, 0));
-			physicsWorld.mouseJoint.setTarget(new Vector2(touchPoint.x, touchPoint.y));
+			window.camera.unproject(physicsWorld.touchPoint.set(screenX, screenY, 0));
+			physicsWorld.mouseJoint.setTarget(physicsWorld.location.set(physicsWorld.touchPoint.x, physicsWorld.touchPoint.y));
 			return true;
 		}
 		return false;
