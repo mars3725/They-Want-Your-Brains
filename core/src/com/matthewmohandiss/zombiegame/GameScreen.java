@@ -2,18 +2,21 @@ package com.matthewmohandiss.zombiegame;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
+import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.utils.Timer;
-import com.matthewmohandiss.zombiegame.Enums.Objects;
 import com.matthewmohandiss.zombiegame.Enums.PlayerState;
 import com.matthewmohandiss.zombiegame.components.CameraComponent;
+import com.matthewmohandiss.zombiegame.components.DraggableComponent;
 import com.matthewmohandiss.zombiegame.components.PhysicsComponent;
 import com.matthewmohandiss.zombiegame.components.PlayerComponent;
 import com.matthewmohandiss.zombiegame.systems.ControlSystem;
+import com.matthewmohandiss.zombiegame.systems.NavDebuggerSystem;
+import com.matthewmohandiss.zombiegame.systems.NavMeshSystem;
 import com.matthewmohandiss.zombiegame.systems.PhysicsSystem;
 
 import java.util.ArrayList;
@@ -33,7 +36,6 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 	public GameScreen(GameLauncher window) {
 		Gdx.input.setInputProcessor(this);
 		this.window = window;
-
 		physicsWorld = new PhysicsWorld(this);
 		debugRenderer = new Box2DDebugRenderer();
 		objectCreator = new ObjectCreator(window, physicsWorld.world);
@@ -41,27 +43,39 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 		hud.createDevHUD();
 		Entity cam = window.engine.getEntitiesFor(Family.all(CameraComponent.class).get()).first();
 
-		Entity background = objectCreator.createBackground();
+		Entity background = objectCreator.background();
 		window.engine.addEntity(background);
 		Mappers.cm.get(cam).maxX = Mappers.sm.get(background).width;
 		Mappers.cm.get(cam).maxY = Mappers.sm.get(background).height;
 
-		player = objectCreator.createPlayer(100, 30);
+		player = objectCreator.player(150, 30);
 		window.engine.addEntity(player);
 		Mappers.cm.get(cam).target = player;
 
 		ControlSystem controlSystem = new ControlSystem(window.engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).first());
-		controlSystem.priority = 0;
+		controlSystem.priority = 7;
 		window.engine.addSystem(controlSystem);
 		PhysicsSystem physicsSystem = new PhysicsSystem(physicsWorld.world);
 		physicsSystem.priority = 1;
 		window.engine.addSystem(physicsSystem);
+		NavMeshSystem navMeshSystem = new NavMeshSystem(physicsWorld, window);
+		navMeshSystem.priority = 5;
+		window.engine.addSystem(navMeshSystem);
+		NavDebuggerSystem navDebuggerSystem = new NavDebuggerSystem();
+		navDebuggerSystem.priority = 6;
+		window.engine.addSystem(navDebuggerSystem);
 
 		play();
 	}
 
 	private void play() {
-		window.engine.addEntity(objectCreator.create(Objects.crate, 20, 20));
+		window.engine.addEntity(objectCreator.crate(20, 20));
+		//window.engine.addEntity(objectCreator.canoe(100, 50));
+		//window.engine.addEntity(objectCreator.trophy(100, 50));
+		//window.engine.addEntity(objectCreator.zombieCorpse(100, 50));
+
+		ImmutableArray<Entity> objects = window.engine.getEntitiesFor(Family.all(DraggableComponent.class).get());
+		window.engine.getSystem(NavMeshSystem.class).createNavMesh(objects);
 	}
 
 	public void contactResolver(final Entity entityA, Entity entityB) {
@@ -73,20 +87,21 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 			Timer.schedule(new Timer.Task() {
 				@Override
 				public void run() {
-					window.engine.addEntity(objectCreator.create(Objects.zombieCorpse, Mappers.pm.get(entityA).x, Mappers.pm.get(entityA).y));
+					window.engine.addEntity(objectCreator.zombieCorpse(Mappers.pm.get(entityA).x, Mappers.pm.get(entityA).y));
 					entitiesForRemoval.add(entityA);
 				}
 			}, 1.5f);
 		}
 	}
 
-	public Entity getEntityForPhysicsBody(Body body) {
+	public Entity getEntityForPhysicsBody(Body body) { //replace with physicsBody.getUserData()
 		for (Entity entity :
 				window.engine.getEntitiesFor(Family.all(PhysicsComponent.class).get())) {
 			if (body == Mappers.phm.get(entity).physicsBody) {
 				return entity;
 			}
 		}
+		//System.out.println("failed to find body");
 		return null;
 	}
 
@@ -114,7 +129,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 				break;
 			case 62: //space
 				window.engine.getSystem(ControlSystem.class).shoot();
-				objectCreator.createBullet(player);
+				objectCreator.bullet(player);
 				break;
 			case 69: //minus
 				window.camera.zoom += 0.25;

@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
+import com.badlogic.gdx.utils.Array;
 
 /**
  * Created by Matthew on 6/27/16.
@@ -16,6 +17,7 @@ public class PhysicsWorld implements ContactListener {
 	public Vector3 touchPoint = new Vector3();
 	public Vector2 location = new Vector2();
 	private GameScreen game;
+
 	QueryCallback callback = new QueryCallback() {
 		@Override
 		public boolean reportFixture(Fixture fixture) {
@@ -46,6 +48,20 @@ public class PhysicsWorld implements ContactListener {
 		world.QueryAABB(callback, testPoint.x, testPoint.y, testPoint.x, testPoint.y);
 	}
 
+	public Array<Body> getDraggableBodies() {
+		Array<Body> bodies = new Array<>();
+		Array<Body> bodiesToRemove = new Array<>();
+		world.getBodies(bodies);
+
+		for (Body body :
+				bodies) {
+			if (game.getEntityForPhysicsBody(body) == null || Mappers.dc.get(game.getEntityForPhysicsBody(body)) == null)
+				bodiesToRemove.add(body);
+		}
+
+		bodies.removeAll(bodiesToRemove, true);
+		return bodies;
+	}
 
 	@Override
 	public void beginContact(Contact contact) {

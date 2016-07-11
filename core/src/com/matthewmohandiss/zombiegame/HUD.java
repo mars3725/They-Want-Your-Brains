@@ -2,6 +2,7 @@ package com.matthewmohandiss.zombiegame;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Vector3;
 import com.matthewmohandiss.zombiegame.components.HUDComponent;
 import com.matthewmohandiss.zombiegame.components.PositionComponent;
 import com.matthewmohandiss.zombiegame.components.TextComponent;
@@ -18,6 +19,7 @@ public class HUD {
 	private Entity windowSize;
 	private Entity windowZoom;
 	private Entity FPS;
+	private Entity mousePosition;
 
 	public HUD(GameLauncher window, GameScreen game) {
 		this.window = window;
@@ -43,6 +45,8 @@ public class HUD {
 		FPS = createLabel(halfWindowWidth - 60, halfWindowHeight - 15);
 		window.engine.addEntity(FPS);
 
+		mousePosition = createLabel(-halfWindowWidth, halfWindowHeight - 30);
+		window.engine.addEntity(mousePosition);
 	}
 
 	private Entity createLabel(float xPos, float yPos) {
@@ -52,16 +56,21 @@ public class HUD {
 		position.x = xPos;
 		position.y = yPos;
 		label.add(position);
+
 		label.add(window.engine.createComponent(HUDComponent.class));
+		position.z = 2;
+
 		return label;
 	}
 
 	public void updateDevHUD() {
 		Mappers.txm.get(playerLocation).text = "(" + Mappers.pm.get(game.player).x + ", " + Mappers.pm.get(game.player).y + ")";
 		Mappers.txm.get(playerState).text = Mappers.stm.get(game.player).state.name();
-		Mappers.txm.get(windowSize).text = "(" + window.camera.viewportWidth + ", " + window.camera.viewportHeight + ")";
+		Mappers.txm.get(windowSize).text = "(" + window.hudCamera.viewportWidth + ", " + window.hudCamera.viewportHeight + ")";
 		Mappers.txm.get(windowZoom).text = String.valueOf(window.camera.zoom);
 		Mappers.txm.get(FPS).text = String.valueOf(Gdx.graphics.getFramesPerSecond());
+		Vector3 location = window.camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
+		Mappers.txm.get(mousePosition).text = "(" + location.x + ", " + location.y + ")";
 	}
 
 }

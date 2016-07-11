@@ -62,36 +62,43 @@ test
   index: -1
 
 pack2.png
-size: 128,16
+size: 128,32
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
-Untitled
+canoe
   rotate: false
-  xy: 67, 3
-  size: 10, 10
-  orig: 10, 10
-  offset: 0, 0
-  index: -1
-trophy
-  rotate: false
-  xy: 67, 3
-  size: 10, 10
-  orig: 10, 10
+  xy: 2, 9
+  size: 70, 13
+  orig: 70, 13
   offset: 0, 0
   index: -1
 crate
   rotate: false
-  xy: 54, 2
+  xy: 74, 4
   size: 11, 11
   orig: 11, 11
   offset: 0, 0
   index: -1
 log
   rotate: false
-  xy: 2, 8
+  xy: 2, 2
   size: 50, 5
   orig: 50, 5
+  offset: 0, 0
+  index: -1
+trophy
+  rotate: false
+  xy: 87, 5
+  size: 10, 10
+  orig: 10, 10
+  offset: 0, 0
+  index: -1
+zombie_corpse
+  rotate: false
+  xy: 74, 17
+  size: 28, 5
+  orig: 28, 5
   offset: 0, 0
   index: -1
 
@@ -169,7 +176,7 @@ player_shoot
   size: 18, 28
   orig: 18, 28
   offset: 0, 0
-  index: 3
+  index: 6
 player_shoot
   rotate: false
   xy: 162, 2
@@ -183,7 +190,7 @@ player_shoot
   size: 18, 28
   orig: 18, 28
   offset: 0, 0
-  index: 6
+  index: 3
 player_shoot
   rotate: false
   xy: 182, 2
@@ -294,6 +301,13 @@ zombie_run
   size: 28, 28
   orig: 28, 28
   offset: 0, 0
+  index: 7
+zombie_run
+  rotate: false
+  xy: 302, 2
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
   index: 4
 zombie_run
   rotate: false
@@ -302,13 +316,6 @@ zombie_run
   orig: 28, 28
   offset: 0, 0
   index: 8
-zombie_run
-  rotate: false
-  xy: 302, 2
-  size: 28, 28
-  orig: 28, 28
-  offset: 0, 0
-  index: 7
 zombie_run
   rotate: false
   xy: 332, 2
