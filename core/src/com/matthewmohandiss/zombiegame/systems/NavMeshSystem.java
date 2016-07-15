@@ -56,12 +56,24 @@ public class NavMeshSystem extends IteratingSystem {
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
 		ArrayList<Entity> nodes = Mappers.dc.get(entity).navNodes;
+		Array<Body> otherBodies = world.getDraggableBodies();
+
 		for (int i = 0; i < nodes.size(); i++) {
 			NavNodeComponent node = Mappers.nnc.get(nodes.get(i));
 			Vector2 nodePosition = new Vector2(node.body.getPosition().x + node.original.x, node.body.getPosition().y + node.original.y);
 			Vector2 newPoint = rotatePoint(nodePosition, Mappers.phm.get(entity).physicsBody.getPosition(), Mappers.phm.get(entity).physicsBody.getAngle());
 			Mappers.pm.get(nodes.get(i)).x = newPoint.x;
 			Mappers.pm.get(nodes.get(i)).y = newPoint.y;
+
+			otherBodies.removeValue(Mappers.phm.get(entity).physicsBody, true);
+			for (Body body :
+					otherBodies) {
+				for (Fixture fixture :
+						body.getFixtureList()) {
+					Mappers.nnc.get(nodes.get(i)).active = !fixture.testPoint(Mappers.pm.get(nodes.get(i)).x, Mappers.pm.get(nodes.get(i)).y);
+				}
+			}
+			otherBodies.add(Mappers.phm.get(entity).physicsBody);
 		}
 	}
 
@@ -117,49 +129,67 @@ public class NavMeshSystem extends IteratingSystem {
 	private ArrayList<Vector2> getBodyFocalPoints(Body body) {
 		Array<Fixture> fixtures = body.getFixtureList();
 		ArrayList<Vector2> focalPoints = new ArrayList<>();
+		ArrayList<Vector2> points = new ArrayList<>();
 
 		for (Fixture fixture :
 				fixtures) {
 			if (fixture.getShape().getType() == Shape.Type.Polygon) {
-
 				PolygonShape shape = ((PolygonShape) fixture.getShape());
-				Vector2 firstPoint = new Vector2();
-				Vector2 secondPoint = new Vector2();
-				Vector2 thirdPoint = new Vector2();
+				int nextI;
+				int previousI;
 
-				ArrayList<Vector2> arr = new ArrayList<>(shape.getVertexCount());
+				Vector2 pointA = new Vector2();
+				Vector2 pointB = new Vector2();
+				Vector2 pointC = new Vector2();
+
+				Vector2 lineBA = new Vector2();
+				Vector2 lineBC = new Vector2();
+
+				Vector2 bisector = new Vector2();
+
+				Vector2 edgePoint = new Vector2();
+
 				for (int i = 0; i < shape.getVertexCount(); i++) {
-					arr.add(i, new Vector2(0, 0));
-					shape.getVertex(i, arr.get(i));
+					previousI = wrapI(i - 1, shape.getVertexCount());
+					nextI = wrapI(i + 1, shape.getVertexCount());
+
+					shape.getVertex(previousI, pointA);
+					shape.getVertex(i, pointB);
+					shape.getVertex(nextI, pointC);
+
+					lineBA.set(pointA.x - pointB.x, pointA.y - pointB.y);
+					lineBA.nor();
+					lineBC.set(pointC.x - pointB.x, pointC.y - pointB.y);
+					lineBC.nor();
+
+					bisector.set(lineBA.x + lineBC.x, lineBA.y + lineBC.y);
+					bisector.nor();
+					bisector.scl(-10);
+
+					edgePoint.set(pointB.x + bisector.x, pointB.y + bisector.y);
+					focalPoints.add(edgePoint.cpy());
 				}
-				System.out.println(arr.toString());
-
-				for (int i = 2; i < shape.getVertexCount(); i++) {
-					shape.getVertex(i - 2, firstPoint);
-					shape.getVertex(i - 1, secondPoint);
-					shape.getVertex(i, thirdPoint);
-					focalPoints.add(getFocalPoint(firstPoint, secondPoint, thirdPoint));
+				for (int i = 0; i < focalPoints.size(); i++) {
+					Vector2 pt1 = focalPoints.get(wrapI(i, focalPoints.size()));
+					Vector2 pt2 = focalPoints.get(wrapI(i + 1, focalPoints.size()));
+					points.add(new Vector2((pt1.x + pt2.x) / 2, (pt1.y + pt2.y) / 2));
 				}
-
-				shape.getVertex(shape.getVertexCount() - 2, firstPoint);
-				shape.getVertex(shape.getVertexCount() - 1, secondPoint);
-				shape.getVertex(0, thirdPoint);
-				focalPoints.add(getFocalPoint(firstPoint, secondPoint, thirdPoint));
-
-				shape.getVertex(shape.getVertexCount() - 1, firstPoint);
-				shape.getVertex(0, secondPoint);
-				shape.getVertex(1, thirdPoint);
-				focalPoints.add(getFocalPoint(firstPoint, secondPoint, thirdPoint));
 			}
 		}
-		return focalPoints;
+		System.out.println(points.toString());
+		return points;
 	}
 
-	private Vector2 getFocalPoint(Vector2 firstPoint, Vector2 secondPoint, Vector2 thirdPoint) {
-		Vector2 lineOne = firstPoint.sub(secondPoint).nor();
-		Vector2 lineTwo = thirdPoint.sub(secondPoint).nor();
-		Vector2 vec = new Vector2(lineOne.add(lineTwo)).rotate(180);
+	private int wrapI(int i, int size) {
+		int newI = i;
 
-		return vec.scl(25);
+		while (newI < 0 || newI >= size) {
+			if (newI >= size) {
+				newI -= size;
+			} else if (i < 0) {
+				newI += size;
+			}
+		}
+		return newI;
 	}
 }

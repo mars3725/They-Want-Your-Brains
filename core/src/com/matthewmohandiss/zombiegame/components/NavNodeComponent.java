@@ -11,4 +11,5 @@ public class NavNodeComponent implements Component {
 	public int id = -1;
 	public Body body;
 	public Vector2 original;
+	public boolean active = true;
 }

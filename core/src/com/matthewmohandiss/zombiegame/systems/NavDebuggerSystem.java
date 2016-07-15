@@ -37,10 +37,12 @@ public class NavDebuggerSystem extends IteratingSystem {
 
 		if (Mappers.nnc.get(entity) != null) {
 			shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-			shapeRenderer.setColor(Color.GREEN);
+			if (Mappers.nnc.get(entity).active) {
+				shapeRenderer.setColor(Color.GREEN);
+			} else {
+				shapeRenderer.setColor(Color.RED);
+			}
 			shapeRenderer.circle(Mappers.pm.get(entity).x, Mappers.pm.get(entity).y, 2, 12);
-			shapeRenderer.setColor(Color.YELLOW);
-			shapeRenderer.line(Mappers.nnc.get(entity).body.getPosition().x + Mappers.nnc.get(entity).original.x, Mappers.nnc.get(entity).body.getPosition().y + Mappers.nnc.get(entity).original.y, Mappers.pm.get(entity).x, Mappers.pm.get(entity).y);
 			shapeRenderer.end();
 		} else if (Mappers.ncc.get(entity) != null) {
 			shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
