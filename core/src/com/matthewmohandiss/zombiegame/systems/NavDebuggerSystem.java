@@ -7,15 +7,19 @@ import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Polygon;
 import com.matthewmohandiss.zombiegame.Mappers;
 import com.matthewmohandiss.zombiegame.components.CameraComponent;
 import com.matthewmohandiss.zombiegame.components.NavConnectionComponent;
 import com.matthewmohandiss.zombiegame.components.NavNodeComponent;
 
+import java.util.ArrayList;
+
 /**
  * Created by Matthew on 6/30/16.
  */
 public class NavDebuggerSystem extends IteratingSystem {
+	public ArrayList<Polygon> registeredShapes = new ArrayList<>();
 	ShapeRenderer shapeRenderer = new ShapeRenderer();
 	private Camera camera;
 
@@ -48,8 +52,24 @@ public class NavDebuggerSystem extends IteratingSystem {
 			shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 			NavConnectionComponent connection = Mappers.ncc.get(entity);
 			shapeRenderer.setColor(Color.YELLOW);
-			shapeRenderer.line(connection.startingPosition.x, connection.startingPosition.y, connection.endingPosition.x, connection.endingPosition.y);
+			shapeRenderer.line(Mappers.pm.get(connection.startingNode).x, Mappers.pm.get(connection.startingNode).y, Mappers.pm.get(connection.endingNode).x, Mappers.pm.get(connection.endingNode).y);
 			shapeRenderer.end();
 		}
+
+		for (Polygon shape :
+				registeredShapes) {
+			drawPolygon(shape);
+		}
+	}
+
+	public void drawPolygon(Polygon polygon) {
+		camera.update();
+		shapeRenderer.setProjectionMatrix(camera.combined);
+
+		shapeRenderer.begin();
+		//shapeRenderer.set(ShapeRenderer.ShapeType.Filled);
+		float[] vertices = polygon.getTransformedVertices();
+		shapeRenderer.polygon(vertices);
+		shapeRenderer.end();
 	}
 }

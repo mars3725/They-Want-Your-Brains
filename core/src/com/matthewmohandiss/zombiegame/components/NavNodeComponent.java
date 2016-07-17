@@ -8,7 +8,6 @@ import com.badlogic.gdx.physics.box2d.Body;
  * Created by Matthew on 6/30/16.
  */
 public class NavNodeComponent implements Component {
-	public int id = -1;
 	public Body body;
 	public Vector2 original;
 	public boolean active = true;
