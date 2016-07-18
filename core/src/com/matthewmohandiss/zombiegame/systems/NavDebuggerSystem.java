@@ -10,7 +10,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Polygon;
 import com.matthewmohandiss.zombiegame.Mappers;
 import com.matthewmohandiss.zombiegame.components.CameraComponent;
-import com.matthewmohandiss.zombiegame.components.NavConnectionComponent;
+import com.matthewmohandiss.zombiegame.components.NavEdgeComponent;
 import com.matthewmohandiss.zombiegame.components.NavNodeComponent;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class NavDebuggerSystem extends IteratingSystem {
 	private Camera camera;
 
 	public NavDebuggerSystem() {
-		super(Family.one(NavNodeComponent.class, NavConnectionComponent.class).get());
+		super(Family.one(NavNodeComponent.class, NavEdgeComponent.class).get());
 	}
 
 	@Override
@@ -50,8 +50,12 @@ public class NavDebuggerSystem extends IteratingSystem {
 			shapeRenderer.end();
 		} else if (Mappers.ncc.get(entity) != null) {
 			shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-			NavConnectionComponent connection = Mappers.ncc.get(entity);
-			shapeRenderer.setColor(Color.YELLOW);
+			NavEdgeComponent connection = Mappers.ncc.get(entity);
+			if (Mappers.ncc.get(entity).viable) {
+				shapeRenderer.setColor(Color.YELLOW);
+			} else {
+				shapeRenderer.setColor(Color.RED);
+			}
 			shapeRenderer.line(Mappers.pm.get(connection.startingNode).x, Mappers.pm.get(connection.startingNode).y, Mappers.pm.get(connection.endingNode).x, Mappers.pm.get(connection.endingNode).y);
 			shapeRenderer.end();
 		}

@@ -21,5 +21,5 @@ public class Mappers {
 	public static ComponentMapper<PlayerComponent> plm = ComponentMapper.getFor(PlayerComponent.class);
 	public static ComponentMapper<DraggableComponent> dc = ComponentMapper.getFor(DraggableComponent.class);
 	public static ComponentMapper<NavNodeComponent> nnc = ComponentMapper.getFor(NavNodeComponent.class);
-	public static ComponentMapper<NavConnectionComponent> ncc = ComponentMapper.getFor(NavConnectionComponent.class);
+	public static ComponentMapper<NavEdgeComponent> ncc = ComponentMapper.getFor(NavEdgeComponent.class);
 }

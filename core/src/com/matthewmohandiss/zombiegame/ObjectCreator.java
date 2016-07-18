@@ -373,7 +373,6 @@ public class ObjectCreator {
 	private PolygonShape physicsBodyForObject(Entity object) {
 		PolygonShape shape = new PolygonShape();
 		Array<Vector2> vertexes = new Array<>(Vector2.class);
-		System.out.println(Mappers.dc.get(object).objectType.toString());
 		switch (Mappers.dc.get(object).objectType) {
 			case trophy:
 				vertexes.add(new Vector2(7, 9));
