@@ -32,7 +32,7 @@ public class NavMeshSystem extends IntervalIteratingSystem {
 	Array<Entity> edges = new Array<>();
 
 	public NavMeshSystem(PhysicsWorld world, GameLauncher window) {
-		super(Family.one(DraggableComponent.class).get(), 1);
+		super(Family.one(DraggableComponent.class).get(), 1f / 60f);
 		this.world = world;
 		this.window = window;
 	}
@@ -115,7 +115,7 @@ public class NavMeshSystem extends IntervalIteratingSystem {
 		polygon.setPosition(body.getPosition().x, body.getPosition().y);
 		polygon.setRotation(MathUtils.radiansToDegrees * body.getAngle());
 
-		getEngine().getSystem(NavDebuggerSystem.class).registeredShapes.add(polygon);
+		//getEngine().getSystem(NavDebuggerSystem.class).registeredShapes.add(polygon);
 		return polygon;
 	}
 
