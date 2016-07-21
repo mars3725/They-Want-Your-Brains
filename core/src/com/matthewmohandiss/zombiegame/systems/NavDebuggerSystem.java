@@ -41,22 +41,27 @@ public class NavDebuggerSystem extends IteratingSystem {
 
 		if (Mappers.nnc.get(entity) != null) {
 			shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
 			if (Mappers.nnc.get(entity).active) {
 				shapeRenderer.setColor(Color.GREEN);
+				shapeRenderer.circle(Mappers.pm.get(entity).x, Mappers.pm.get(entity).y, 2, 12);
 			} else {
-				shapeRenderer.setColor(Color.RED);
+//				shapeRenderer.setColor(Color.RED);
+//				shapeRenderer.circle(Mappers.pm.get(entity).x, Mappers.pm.get(entity).y, 2, 12);
 			}
-			shapeRenderer.circle(Mappers.pm.get(entity).x, Mappers.pm.get(entity).y, 2, 12);
 			shapeRenderer.end();
+
 		} else if (Mappers.ncc.get(entity) != null) {
 			shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 			NavEdgeComponent connection = Mappers.ncc.get(entity);
+
 			if (Mappers.ncc.get(entity).viable) {
 				shapeRenderer.setColor(Color.YELLOW);
+				shapeRenderer.line(Mappers.pm.get(connection.startingNode).x, Mappers.pm.get(connection.startingNode).y, Mappers.pm.get(connection.endingNode).x, Mappers.pm.get(connection.endingNode).y);
 			} else {
-				shapeRenderer.setColor(Color.RED);
+//				shapeRenderer.setColor(Color.RED);
+//				shapeRenderer.line(Mappers.pm.get(connection.startingNode).x, Mappers.pm.get(connection.startingNode).y, Mappers.pm.get(connection.endingNode).x, Mappers.pm.get(connection.endingNode).y);
 			}
-			shapeRenderer.line(Mappers.pm.get(connection.startingNode).x, Mappers.pm.get(connection.startingNode).y, Mappers.pm.get(connection.endingNode).x, Mappers.pm.get(connection.endingNode).y);
 			shapeRenderer.end();
 		}
 

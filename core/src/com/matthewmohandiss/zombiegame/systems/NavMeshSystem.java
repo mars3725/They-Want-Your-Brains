@@ -29,6 +29,7 @@ import java.util.ArrayList;
 public class NavMeshSystem extends IntervalIteratingSystem {
 	PhysicsWorld world;
 	GameLauncher window;
+	Array<Entity> nodes = new Array<>();
 	Array<Entity> edges = new Array<>();
 
 	public NavMeshSystem(PhysicsWorld world, GameLauncher window) {
@@ -74,6 +75,7 @@ public class NavMeshSystem extends IntervalIteratingSystem {
 			Entity node = createNavNode(body, focalPoint);
 			Mappers.dc.get(object).navNodes.add(node);
 			window.engine.addEntity(node);
+			nodes.add(node);
 		}
 
 		Array<Entity> navNodes = Mappers.dc.get(object).navNodes;
@@ -87,6 +89,7 @@ public class NavMeshSystem extends IntervalIteratingSystem {
 			if (!Intersector.intersectSegmentPolygon(startingPos, endingPos, gon)) { //doesn't work
 				Entity edge = createEdge(startingNode, endingNode);
 				window.engine.addEntity(edge);
+				edges.add(edge);
 			} else {
 				System.out.println("intersection with base object. Ignoring connection");
 			}
@@ -124,6 +127,8 @@ public class NavMeshSystem extends IntervalIteratingSystem {
 		Array<Entity> nodes = Mappers.dc.get(entity).navNodes;
 		Array<Body> otherBodies = world.getDraggableBodies();
 
+		//getEngine().getSystem(NavDebuggerSystem.class).registeredShapes.clear();
+
 		for (Entity node :
 				nodes) {
 			NavNodeComponent navNode = Mappers.nnc.get(node);
@@ -131,36 +136,37 @@ public class NavMeshSystem extends IntervalIteratingSystem {
 			Vector2 newPoint = rotatePoint(nodePosition, Mappers.phm.get(entity).physicsBody.getPosition(), Mappers.phm.get(entity).physicsBody.getAngle());
 			Mappers.pm.get(node).x = newPoint.x;
 			Mappers.pm.get(node).y = newPoint.y;
+			navNode.active = true;
 
 			otherBodies.removeValue(Mappers.phm.get(entity).physicsBody, true);
 			for (Body body :
 					otherBodies) {
 				for (Fixture fixture :
 						body.getFixtureList()) {
-					navNode.active = !fixture.testPoint(Mappers.pm.get(node).x, Mappers.pm.get(node).y);
+					if (fixture.testPoint(Mappers.pm.get(node).x, Mappers.pm.get(node).y)) {
+						navNode.active = false;
+					}
 				}
 			}
 			otherBodies.add(Mappers.phm.get(entity).physicsBody);
 
-//			if (navNode.active) {
-//				for (Entity edge :
-//						navNode.outGoingEdges) {
-//					for (Body body :
-//							otherBodies) {
-//						Vector2 edgeStart = new Vector2(Mappers.pm.get(Mappers.ncc.get(edge).startingNode).x, Mappers.pm.get(Mappers.ncc.get(edge).startingNode).y);
-//						Vector2 edgeEnd = new Vector2(Mappers.pm.get(Mappers.ncc.get(edge).endingNode).x, Mappers.pm.get(Mappers.ncc.get(edge).endingNode).y);
-//						Mappers.ncc.get(edge).viable = Intersector.intersectSegmentPolygon(edgeStart, edgeEnd, box2dPolygonToLibgdxPolygon(body));
-//					}
-//				}
-//			}
+			Array<Polygon> polygonBodies = new Array<>(otherBodies.size);
+			for (Body body :
+					otherBodies) {
+				polygonBodies.add(box2dPolygonToLibgdxPolygon(body));
+			}
 
 			for (Entity edge :
 					edges) {
-				for (Body body :
-						otherBodies) {
+				Mappers.ncc.get(edge).viable = true;
+				for (Polygon body :
+						polygonBodies) {
 					Vector2 edgeStart = new Vector2(Mappers.pm.get(Mappers.ncc.get(edge).startingNode).x, Mappers.pm.get(Mappers.ncc.get(edge).startingNode).y);
 					Vector2 edgeEnd = new Vector2(Mappers.pm.get(Mappers.ncc.get(edge).endingNode).x, Mappers.pm.get(Mappers.ncc.get(edge).endingNode).y);
-					Mappers.ncc.get(edge).viable = !Intersector.intersectSegmentPolygon(edgeStart, edgeEnd, box2dPolygonToLibgdxPolygon(body));
+
+					if (Intersector.intersectSegmentPolygon(edgeStart, edgeEnd, body) || !Mappers.nnc.get(Mappers.ncc.get(edge).startingNode).active || !Mappers.nnc.get(Mappers.ncc.get(edge).endingNode).active) {
+						Mappers.ncc.get(edge).viable = false;
+					}
 				}
 			}
 		}
@@ -247,7 +253,7 @@ public class NavMeshSystem extends IntervalIteratingSystem {
 				for (int i = 0; i < focalPoints.size(); i++) {
 					Vector2 pt1 = focalPoints.get(wrapI(i, focalPoints.size()));
 					Vector2 pt2 = focalPoints.get(wrapI(i + 1, focalPoints.size()));
-					//points.add(pt1);
+					points.add(pt1);
 					points.add(new Vector2((pt1.x + pt2.x) / 2, (pt1.y + pt2.y) / 2));
 				}
 			}

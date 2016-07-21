@@ -71,7 +71,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 	private void play() {
 		window.engine.addEntity(objectCreator.crate(20, 20));
 		window.engine.addEntity(objectCreator.canoe(100, 50));
-		//window.engine.addEntity(objectCreator.trophy(100, 50));
+		window.engine.addEntity(objectCreator.trophy(100, 50));
 		//window.engine.addEntity(objectCreator.zombieCorpse(100, 50));
 
 		ImmutableArray<Entity> objects = window.engine.getEntitiesFor(Family.all(DraggableComponent.class).get());
