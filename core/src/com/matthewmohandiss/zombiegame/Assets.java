@@ -34,7 +34,8 @@ public class Assets {
 	public static TextureRegion log;
 	public static TextureRegion bullet;
 	public static TextureRegion trophy;
-	public static TextureRegion zombie_dead;
+	public static TextureRegion zombie_corpse;
+	public static TextureRegion canoe;
 
 	//	public static Music music;
 	public static Sound clickSound;
@@ -64,7 +65,8 @@ public class Assets {
 		bullet = loadTexture("bullet");
 		trophy = loadTexture("trophy");
 		zombie_die = pack.findRegions("zombie_die");
-		zombie_dead = pack.findRegion("zombie_die", 8);
+		zombie_corpse = loadTexture("zombie_corpse");
+		canoe = loadTexture("canoe");
 
 		clickSound = Gdx.audio.newSound(Gdx.files.internal("click.wav"));
 

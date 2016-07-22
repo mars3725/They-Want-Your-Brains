@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.utils.Array;
 import com.matthewmohandiss.zombiegame.Enums.Objects;
 import com.matthewmohandiss.zombiegame.Enums.PlayerState;
 import com.matthewmohandiss.zombiegame.components.*;
@@ -21,38 +22,53 @@ public class ObjectCreator {
 		this.world = world;
 	}
 
-	public Entity create(Objects object, float x, float y) {
-		Entity entity;
-		switch (object) {
-			case crate:
-				entity = createCrate(x, y);
-				break;
-			case log:
-				entity = createLog(x, y);
-				break;
-			case trophy:
-				entity = createTrophy(x, y);
-				break;
-			case zombieCorpse:
-				entity = createZombieCorpse(x, y);
-				break;
-			default:
-				entity = createError(x, y);
-				break;
+	public Entity crate(float x, float y) {
+		Entity object = genericEntity(Assets.crate, x, y);
+
+		DraggableComponent draggableComponent = window.engine.createComponent(DraggableComponent.class);
+		draggableComponent.objectType = Objects.crate;
+		object.add(draggableComponent);
+
+		PhysicsComponent physicsComponent = window.engine.createComponent(PhysicsComponent.class);
+		BodyDef bodyDef = new BodyDef();
+		bodyDef.type = BodyDef.BodyType.DynamicBody;
+		bodyDef.position.set(x, y);
+		Body body = world.createBody(bodyDef);
+		PolygonShape shape = physicsBodyForObject(object);
+
+		FixtureDef fixtureDef = new FixtureDef();
+		fixtureDef.shape = shape;
+		fixtureDef.density = 1.5f;
+		fixtureDef.friction = 0.9f;
+		Vector2[] arr = new Vector2[10];
+		for (int i = 0; i < shape.getVertexCount(); i++) {
+			arr[i] = new Vector2(0, 0);
+			shape.getVertex(i, arr[i]);
 		}
-		return entity;
+
+
+		body.createFixture(fixtureDef);
+		physicsComponent.physicsBody = body;
+		physicsComponent.maxVelocity = 30;
+		shape.dispose();
+		object.add(physicsComponent);
+
+		return object;
 	}
 
-	private Entity createCrate(float x, float y) {
-		Entity object = createGenericEntity(Assets.crate, x, y);
+	public Entity canoe(float x, float y) {
+		Entity object = genericEntity(Assets.canoe, x, y);
+
+		DraggableComponent draggableComponent = window.engine.createComponent(DraggableComponent.class);
+		draggableComponent.objectType = Objects.canoe;
+		object.add(draggableComponent);
 
 		PhysicsComponent physicsComponent = window.engine.createComponent(PhysicsComponent.class);
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type = BodyDef.BodyType.DynamicBody;
 		bodyDef.position.set(x, y);
 		Body body = world.createBody(bodyDef);
-		PolygonShape shape = new PolygonShape();
-		shape.setAsBox(Mappers.sm.get(object).width / 2, Mappers.sm.get(object).height / 2);
+		PolygonShape shape = physicsBodyForObject(object);
 
 		FixtureDef fixtureDef = new FixtureDef();
 		fixtureDef.shape = shape;
@@ -65,21 +81,22 @@ public class ObjectCreator {
 		shape.dispose();
 		object.add(physicsComponent);
 
-		object.add(new DraggableComponent());
-
 		return object;
 	}
 
-	private Entity createLog(float x, float y) {
-		Entity object = createGenericEntity(Assets.log, x, y);
+	public Entity log(float x, float y) {
+		Entity object = genericEntity(Assets.log, x, y);
+
+		DraggableComponent draggableComponent = window.engine.createComponent(DraggableComponent.class);
+		draggableComponent.objectType = Objects.log;
+		object.add(new DraggableComponent());
 
 		PhysicsComponent physicsComponent = window.engine.createComponent(PhysicsComponent.class);
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type = BodyDef.BodyType.DynamicBody;
 		bodyDef.position.set(x, y);
 		Body body = world.createBody(bodyDef);
-		PolygonShape shape = new PolygonShape();
-		shape.setAsBox(Mappers.sm.get(object).width / 2, Mappers.sm.get(object).height / 2);
+		PolygonShape shape = physicsBodyForObject(object);
 
 		FixtureDef fixtureDef = new FixtureDef();
 		fixtureDef.shape = shape;
@@ -92,21 +109,22 @@ public class ObjectCreator {
 		shape.dispose();
 		object.add(physicsComponent);
 
-		object.add(new DraggableComponent());
-
 		return object;
 	}
 
-	private Entity createTrophy(float x, float y) {
-		Entity object = createGenericEntity(Assets.trophy, x, y);
+	public Entity trophy(float x, float y) {
+		Entity object = genericEntity(Assets.trophy, x, y);
+
+		DraggableComponent draggableComponent = window.engine.createComponent(DraggableComponent.class);
+		draggableComponent.objectType = Objects.trophy;
+		object.add(new DraggableComponent());
 
 		PhysicsComponent physicsComponent = window.engine.createComponent(PhysicsComponent.class);
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type = BodyDef.BodyType.DynamicBody;
 		bodyDef.position.set(x, y);
 		Body body = world.createBody(bodyDef);
-		PolygonShape shape = new PolygonShape();
-		shape.setAsBox(Mappers.sm.get(object).width / 2, Mappers.sm.get(object).height / 2);
+		PolygonShape shape = physicsBodyForObject(object);
 
 		FixtureDef fixtureDef = new FixtureDef();
 		fixtureDef.shape = shape;
@@ -119,21 +137,22 @@ public class ObjectCreator {
 		shape.dispose();
 		object.add(physicsComponent);
 
-		object.add(new DraggableComponent());
-
 		return object;
 	}
 
-	private Entity createZombieCorpse(float x, float y) {
-		Entity object = createGenericEntity(Assets.zombie_dead, x, y);
+	public Entity zombieCorpse(float x, float y) {
+		Entity object = genericEntity(Assets.zombie_corpse, x, y);
+
+		DraggableComponent draggableComponent = window.engine.createComponent(DraggableComponent.class);
+		draggableComponent.objectType = Objects.zombieCorpse;
+		object.add(new DraggableComponent());
 
 		PhysicsComponent physicsComponent = window.engine.createComponent(PhysicsComponent.class);
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type = BodyDef.BodyType.DynamicBody;
 		bodyDef.position.set(x, y);
 		Body body = world.createBody(bodyDef);
-		PolygonShape shape = new PolygonShape();
-		shape.setAsBox(Mappers.sm.get(object).width / 2, Mappers.sm.get(object).height / 2);
+		PolygonShape shape = physicsBodyForObject(object);
 
 		FixtureDef fixtureDef = new FixtureDef();
 		fixtureDef.shape = shape;
@@ -146,21 +165,22 @@ public class ObjectCreator {
 		shape.dispose();
 		object.add(physicsComponent);
 
-		object.add(new DraggableComponent());
-
 		return object;
 	}
 
-	private Entity createError(float x, float y) {
-		Entity object = createGenericEntity(Assets.error, x, y);
+	public Entity error(float x, float y) {
+		Entity object = genericEntity(Assets.error, x, y);
+
+		DraggableComponent draggableComponent = window.engine.createComponent(DraggableComponent.class);
+		draggableComponent.objectType = Objects.error;
+		object.add(new DraggableComponent());
 
 		PhysicsComponent physicsComponent = window.engine.createComponent(PhysicsComponent.class);
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type = BodyDef.BodyType.DynamicBody;
 		bodyDef.position.set(x, y);
 		Body body = world.createBody(bodyDef);
-		PolygonShape shape = new PolygonShape();
-		shape.setAsBox(Mappers.sm.get(object).width / 2, Mappers.sm.get(object).height / 2);
+		PolygonShape shape = physicsBodyForObject(object);
 
 		FixtureDef fixtureDef = new FixtureDef();
 		fixtureDef.shape = shape;
@@ -173,13 +193,13 @@ public class ObjectCreator {
 		shape.dispose();
 		object.add(physicsComponent);
 
-		object.add(new DraggableComponent());
-
 		return object;
 	}
 
-	public Entity createPlayer(float xPos, float yPos) {
-		Entity player = createGenericEntity(Assets.player_idle, xPos, yPos);
+	//Special Objects
+
+	public Entity player(float xPos, float yPos) {
+		Entity player = genericEntity(Assets.player_idle, xPos, yPos);
 
 		PhysicsComponent physicsComponent = window.engine.createComponent(PhysicsComponent.class);
 		BodyDef bodyDef = new BodyDef();
@@ -219,8 +239,8 @@ public class ObjectCreator {
 		return player;
 	}
 
-	public void createZombie(float xPos, float yPos) {
-		Entity zombie = createGenericEntity(Assets.zombie_idle, xPos, yPos);
+	public void zombie(float xPos, float yPos) {
+		Entity zombie = genericEntity(Assets.zombie_idle, xPos, yPos);
 
 		PhysicsComponent physicsComponent = window.engine.createComponent(PhysicsComponent.class);
 		BodyDef bodyDef = new BodyDef();
@@ -260,15 +280,15 @@ public class ObjectCreator {
 		window.engine.addEntity(zombie);
 	}
 
-	public void createBullet(Entity player) {
+	public void bullet(Entity player) {
 		Entity bullet;
 		if (Mappers.am.get(player).flipped) {
-			bullet = createGenericEntity(Assets.bullet, Mappers.phm.get(player).physicsBody.getPosition().x - 7, Mappers.phm.get(player).physicsBody.getPosition().y);
+			bullet = genericEntity(Assets.bullet, Mappers.phm.get(player).physicsBody.getPosition().x - 7, Mappers.phm.get(player).physicsBody.getPosition().y);
 			if (!Mappers.tm.get(bullet).texture.isFlipX()) {
 				Mappers.tm.get(bullet).texture.flip(true, false);
 			}
 		} else {
-			bullet = createGenericEntity(Assets.bullet, Mappers.phm.get(player).physicsBody.getPosition().x + 7, Mappers.phm.get(player).physicsBody.getPosition().y);
+			bullet = genericEntity(Assets.bullet, Mappers.phm.get(player).physicsBody.getPosition().x + 7, Mappers.phm.get(player).physicsBody.getPosition().y);
 			if (Mappers.tm.get(bullet).texture.isFlipX()) {
 				Mappers.tm.get(bullet).texture.flip(false, false);
 			}
@@ -302,8 +322,9 @@ public class ObjectCreator {
 		window.engine.addEntity(bullet);
 	}
 
-	public Entity createBackground() {
-		Entity background = createGenericEntity(Assets.forest_background, Assets.forest_background.getRegionWidth() / 2, Assets.forest_background.getRegionHeight() / 2);
+	public Entity background() {
+		Entity background = genericEntity(Assets.forest_background, Assets.forest_background.getRegionWidth() / 2, Assets.forest_background.getRegionHeight() / 2);
+		Mappers.pm.get(background).z = 0;
 
 		PhysicsComponent physicsComponent = window.engine.createComponent(PhysicsComponent.class);
 		BodyDef bodyDef = new BodyDef();
@@ -328,7 +349,7 @@ public class ObjectCreator {
 		return background;
 	}
 
-	public Entity createGenericEntity(TextureRegion texture, float xPos, float yPos) {
+	public Entity genericEntity(TextureRegion texture, float xPos, float yPos) {
 		Entity entity = window.engine.createEntity();
 
 		PositionComponent position = window.engine.createComponent(PositionComponent.class);
@@ -347,5 +368,59 @@ public class ObjectCreator {
 		entity.add(size);
 
 		return entity;
+	}
+
+	private PolygonShape physicsBodyForObject(Entity object) {
+		PolygonShape shape = new PolygonShape();
+		Array<Vector2> vertexes = new Array<>(Vector2.class);
+		switch (Mappers.dc.get(object).objectType) {
+			case trophy:
+				vertexes.add(new Vector2(7, 9));
+				vertexes.add(new Vector2(9, 2));
+				vertexes.add(new Vector2(8, 0));
+				vertexes.add(new Vector2(1, 0));
+				vertexes.add(new Vector2(0, 1));
+				vertexes.add(new Vector2(0, 3));
+				vertexes.add(new Vector2(2, 9));
+				shape.set(vertexes.toArray());
+				offsetShape(shape, new Vector2(Assets.trophy.getRegionWidth() / 2, Assets.trophy.getRegionHeight() / 2));
+				break;
+			case zombieCorpse:
+				vertexes.add(new Vector2(27, 4));
+				vertexes.add(new Vector2(27, 2));
+				vertexes.add(new Vector2(23, 0));
+				vertexes.add(new Vector2(13, 0));
+				vertexes.add(new Vector2(8, 3));
+				vertexes.add(new Vector2(1, 4));
+				shape.set(vertexes.toArray());
+				offsetShape(shape, new Vector2(Assets.zombie_corpse.getRegionWidth() / 2, Assets.trophy.getRegionHeight() / 2));
+				break;
+			case canoe:
+				vertexes.add(new Vector2(58, 12));
+				vertexes.add(new Vector2(66, 7));
+				vertexes.add(new Vector2(69, 0));
+				vertexes.add(new Vector2(0, 0));
+				vertexes.add(new Vector2(3, 7));
+				vertexes.add(new Vector2(12, 12));
+				shape.set(vertexes.toArray());
+				offsetShape(shape, new Vector2(Assets.canoe.getRegionWidth() / 2, Assets.canoe.getRegionHeight() / 2));
+				break;
+			default:
+				shape.setAsBox(Mappers.sm.get(object).width / 2, Mappers.sm.get(object).height / 2);
+				break;
+		}
+		return shape;
+	}
+
+	private void offsetShape(PolygonShape shape, Vector2 offset) {
+		Array<Vector2> newVertices = new Array<>(Vector2.class);
+		for (int i = 0; i < shape.getVertexCount(); i++) {
+			Vector2 vertex = new Vector2();
+			shape.getVertex(i, vertex);
+			vertex.x -= offset.x;
+			vertex.y = offset.y - vertex.y;
+			newVertices.add(vertex);
+		}
+		shape.set(newVertices.toArray());
 	}
 }
