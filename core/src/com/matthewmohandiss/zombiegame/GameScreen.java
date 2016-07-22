@@ -2,7 +2,6 @@ package com.matthewmohandiss.zombiegame;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.ScreenAdapter;
@@ -11,7 +10,6 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.utils.Timer;
 import com.matthewmohandiss.zombiegame.Enums.PlayerState;
 import com.matthewmohandiss.zombiegame.components.CameraComponent;
-import com.matthewmohandiss.zombiegame.components.DraggableComponent;
 import com.matthewmohandiss.zombiegame.components.PhysicsComponent;
 import com.matthewmohandiss.zombiegame.components.PlayerComponent;
 import com.matthewmohandiss.zombiegame.systems.ControlSystem;
@@ -48,6 +46,8 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 		Mappers.cm.get(cam).maxX = Mappers.sm.get(background).width;
 		Mappers.cm.get(cam).maxY = Mappers.sm.get(background).height;
 
+		physicsWorld.setWorldSize(Mappers.cm.get(cam).maxX, Mappers.cm.get(cam).maxY);
+
 		player = objectCreator.player(150, 30);
 		window.engine.addEntity(player);
 		Mappers.cm.get(cam).target = player;
@@ -69,13 +69,24 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 	}
 
 	private void play() {
-		window.engine.addEntity(objectCreator.crate(20, 20));
-		window.engine.addEntity(objectCreator.canoe(100, 50));
-		window.engine.addEntity(objectCreator.trophy(100, 50));
-		//window.engine.addEntity(objectCreator.zombieCorpse(100, 50));
+		Entity crate = objectCreator.crate(20, 20);
+		window.engine.addEntity(crate);
+		window.engine.getSystem(NavMeshSystem.class).addObjectToMesh(crate);
 
-		ImmutableArray<Entity> objects = window.engine.getEntitiesFor(Family.all(DraggableComponent.class).get());
-		window.engine.getSystem(NavMeshSystem.class).createNavMesh(objects);
+		Entity canoe = objectCreator.canoe(100, 20);
+		window.engine.addEntity(canoe);
+		window.engine.getSystem(NavMeshSystem.class).addObjectToMesh(canoe);
+
+		Entity trophy = objectCreator.trophy(50, 20);
+		window.engine.addEntity(trophy);
+		window.engine.getSystem(NavMeshSystem.class).addObjectToMesh(trophy);
+
+		Entity zombieCorpse = objectCreator.zombieCorpse(20, 50);
+		window.engine.addEntity(zombieCorpse);
+		window.engine.getSystem(NavMeshSystem.class).addObjectToMesh(zombieCorpse);
+
+//		ImmutableArray<Entity> objects = window.engine.getEntitiesFor(Family.all(DraggableComponent.class).get());
+//		window.engine.getSystem(NavMeshSystem.class).createNavMesh(objects);
 	}
 
 	public void contactResolver(final Entity entityA, Entity entityB) {

@@ -16,8 +16,9 @@ public class PhysicsWorld implements ContactListener {
 	public MouseJoint mouseJoint;
 	public Vector3 touchPoint = new Vector3();
 	public Vector2 location = new Vector2();
+	public float worldWidth;
+	public float worldHeight;
 	private GameScreen game;
-
 	QueryCallback callback = new QueryCallback() {
 		@Override
 		public boolean reportFixture(Fixture fixture) {
@@ -41,6 +42,11 @@ public class PhysicsWorld implements ContactListener {
 		mouseJointDef.collideConnected = true;
 		mouseJointDef.dampingRatio = 10;
 		mouseJointDef.maxForce = 20000;
+	}
+
+	public void setWorldSize(float width, float height) {
+		worldWidth = width;
+		worldHeight = height;
 	}
 
 	public void touch(Vector3 testPoint) {

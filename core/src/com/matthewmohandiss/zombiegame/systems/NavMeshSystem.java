@@ -1,9 +1,7 @@
 package com.matthewmohandiss.zombiegame.systems;
 
 import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.systems.IntervalIteratingSystem;
-import com.badlogic.ashley.utils.ImmutableArray;
+import com.badlogic.ashley.systems.IntervalSystem;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
@@ -16,7 +14,6 @@ import com.badlogic.gdx.utils.Array;
 import com.matthewmohandiss.zombiegame.GameLauncher;
 import com.matthewmohandiss.zombiegame.Mappers;
 import com.matthewmohandiss.zombiegame.PhysicsWorld;
-import com.matthewmohandiss.zombiegame.components.DraggableComponent;
 import com.matthewmohandiss.zombiegame.components.NavEdgeComponent;
 import com.matthewmohandiss.zombiegame.components.NavNodeComponent;
 import com.matthewmohandiss.zombiegame.components.PositionComponent;
@@ -26,40 +23,35 @@ import java.util.ArrayList;
 /**
  * Created by Matthew on 6/30/16.
  */
-public class NavMeshSystem extends IntervalIteratingSystem {
+public class NavMeshSystem extends IntervalSystem {
 	PhysicsWorld world;
 	GameLauncher window;
 	Array<Entity> nodes = new Array<>();
 	Array<Entity> edges = new Array<>();
+	Array<Entity> objects = new Array<>();
 
 	public NavMeshSystem(PhysicsWorld world, GameLauncher window) {
-		super(Family.one(DraggableComponent.class).get(), 1f / 60f);
+		super(1 / 60f);
 		this.world = world;
 		this.window = window;
 	}
 
-	public void createNavMesh(ImmutableArray<Entity> objects) {
+	public void addObjectToMesh(Entity object) {
+		genMeshForObject(object);
 
-		for (Entity object :
+		for (Entity otherObject :
 				objects) {
-			genMeshForObject(object);
+			genEdgesBetween(object, otherObject);
 		}
-
-		for (int i = 0; i < objects.size() - 1; i++) {
-			genEdgesBetween(objects.get(i), objects.get(i + 1));
-		}
+		objects.add(object);
 	}
 
 	public void genEdgesBetween(Entity firstObject, Entity secondObject) {
-		Array<Entity> firstObjNavNodes = Mappers.dc.get(firstObject).navNodes;
-		Array<Entity> secondObjNavNodes = Mappers.dc.get(secondObject).navNodes;
-
 		for (Entity firstNode :
-				firstObjNavNodes) {
+				Mappers.dc.get(firstObject).navNodes) {
 			for (Entity secondNode :
-					secondObjNavNodes) {
+					Mappers.dc.get(secondObject).navNodes) {
 				Entity edge = createEdge(firstNode, secondNode);
-				//Mappers.nnc.get(firstNode).outGoingEdges.add(edge);
 				edges.add(edge);
 				window.engine.addEntity(edge);
 			}
@@ -79,20 +71,12 @@ public class NavMeshSystem extends IntervalIteratingSystem {
 		}
 
 		Array<Entity> navNodes = Mappers.dc.get(object).navNodes;
-		Polygon gon = box2dPolygonToLibgdxPolygon(body);
 		for (int i = 0; i < navNodes.size; i++) {
 			Entity startingNode = navNodes.get(i);
-			Vector2 startingPos = new Vector2(Mappers.pm.get(startingNode).x, Mappers.pm.get(startingNode).y);
 			Entity endingNode = navNodes.get(wrapI(i + 1, navNodes.size));
-			Vector2 endingPos = new Vector2(Mappers.pm.get(endingNode).x, Mappers.pm.get(endingNode).y);
-
-			if (!Intersector.intersectSegmentPolygon(startingPos, endingPos, gon)) { //doesn't work
-				Entity edge = createEdge(startingNode, endingNode);
-				window.engine.addEntity(edge);
-				edges.add(edge);
-			} else {
-				System.out.println("intersection with base object. Ignoring connection");
-			}
+			Entity edge = createEdge(startingNode, endingNode);
+			window.engine.addEntity(edge);
+			edges.add(edge);
 		}
 	}
 
@@ -123,53 +107,59 @@ public class NavMeshSystem extends IntervalIteratingSystem {
 	}
 
 	@Override
-	protected void processEntity(Entity entity) {
-		Array<Entity> nodes = Mappers.dc.get(entity).navNodes;
+	protected void updateInterval() {
 		Array<Body> otherBodies = world.getDraggableBodies();
-
-		//getEngine().getSystem(NavDebuggerSystem.class).registeredShapes.clear();
 
 		for (Entity node :
 				nodes) {
 			NavNodeComponent navNode = Mappers.nnc.get(node);
 			Vector2 nodePosition = new Vector2(navNode.body.getPosition().x + navNode.original.x, navNode.body.getPosition().y + navNode.original.y);
-			Vector2 newPoint = rotatePoint(nodePosition, Mappers.phm.get(entity).physicsBody.getPosition(), Mappers.phm.get(entity).physicsBody.getAngle());
+			Vector2 newPoint = rotatePoint(nodePosition, navNode.body.getPosition(), navNode.body.getAngle());
 			Mappers.pm.get(node).x = newPoint.x;
 			Mappers.pm.get(node).y = newPoint.y;
 			navNode.active = true;
 
-			otherBodies.removeValue(Mappers.phm.get(entity).physicsBody, true);
+			otherBodies.removeValue(navNode.body, true);
 			for (Body body :
 					otherBodies) {
 				for (Fixture fixture :
 						body.getFixtureList()) {
-					if (fixture.testPoint(Mappers.pm.get(node).x, Mappers.pm.get(node).y)) {
+					if (fixture.testPoint(Mappers.pm.get(node).x, Mappers.pm.get(node).y) || outOfGameWorld(Mappers.pm.get(node).x, Mappers.pm.get(node).y)) {
 						navNode.active = false;
+						break;
 					}
 				}
+				if (!navNode.active) {
+					break;
+				}
 			}
-			otherBodies.add(Mappers.phm.get(entity).physicsBody);
+			otherBodies.add(navNode.body);
+		}
 
-			Array<Polygon> polygonBodies = new Array<>(otherBodies.size);
-			for (Body body :
-					otherBodies) {
-				polygonBodies.add(box2dPolygonToLibgdxPolygon(body));
-			}
+		Array<Polygon> polygonBodies = new Array<>(otherBodies.size);
+		for (Body body :
+				otherBodies) {
+			polygonBodies.add(box2dPolygonToLibgdxPolygon(body));
+		}
 
-			for (Entity edge :
-					edges) {
-				Mappers.ncc.get(edge).viable = true;
-				for (Polygon body :
-						polygonBodies) {
-					Vector2 edgeStart = new Vector2(Mappers.pm.get(Mappers.ncc.get(edge).startingNode).x, Mappers.pm.get(Mappers.ncc.get(edge).startingNode).y);
-					Vector2 edgeEnd = new Vector2(Mappers.pm.get(Mappers.ncc.get(edge).endingNode).x, Mappers.pm.get(Mappers.ncc.get(edge).endingNode).y);
+		for (Entity edge :
+				edges) {
+			Mappers.ncc.get(edge).viable = true;
+			for (Polygon body :
+					polygonBodies) {
+				Vector2 edgeStart = new Vector2(Mappers.pm.get(Mappers.ncc.get(edge).startingNode).x, Mappers.pm.get(Mappers.ncc.get(edge).startingNode).y);
+				Vector2 edgeEnd = new Vector2(Mappers.pm.get(Mappers.ncc.get(edge).endingNode).x, Mappers.pm.get(Mappers.ncc.get(edge).endingNode).y);
 
-					if (Intersector.intersectSegmentPolygon(edgeStart, edgeEnd, body) || !Mappers.nnc.get(Mappers.ncc.get(edge).startingNode).active || !Mappers.nnc.get(Mappers.ncc.get(edge).endingNode).active) {
-						Mappers.ncc.get(edge).viable = false;
-					}
+				if (Intersector.intersectSegmentPolygon(edgeStart, edgeEnd, body) || !Mappers.nnc.get(Mappers.ncc.get(edge).startingNode).active || !Mappers.nnc.get(Mappers.ncc.get(edge).endingNode).active) {
+					Mappers.ncc.get(edge).viable = false;
+					break;
 				}
 			}
 		}
+	}
+
+	private boolean outOfGameWorld(float xPos, float yPos) {
+		return xPos < 0 || xPos > world.worldWidth || yPos < 0 || yPos > world.worldHeight;
 	}
 
 	private Vector2 rotatePoint(Vector2 point, Vector2 origin, float angle) {
@@ -267,7 +257,7 @@ public class NavMeshSystem extends IntervalIteratingSystem {
 		while (newI < 0 || newI >= size) {
 			if (newI >= size) {
 				newI -= size;
-			} else if (i < 0) {
+			} else if (newI < 0) {
 				newI += size;
 			}
 		}
