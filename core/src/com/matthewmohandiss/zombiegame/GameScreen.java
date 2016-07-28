@@ -12,10 +12,7 @@ import com.matthewmohandiss.zombiegame.Enums.PlayerState;
 import com.matthewmohandiss.zombiegame.components.CameraComponent;
 import com.matthewmohandiss.zombiegame.components.PhysicsComponent;
 import com.matthewmohandiss.zombiegame.components.PlayerComponent;
-import com.matthewmohandiss.zombiegame.systems.ControlSystem;
-import com.matthewmohandiss.zombiegame.systems.NavDebuggerSystem;
-import com.matthewmohandiss.zombiegame.systems.NavMeshSystem;
-import com.matthewmohandiss.zombiegame.systems.PhysicsSystem;
+import com.matthewmohandiss.zombiegame.systems.*;
 
 import java.util.ArrayList;
 
@@ -64,26 +61,33 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 		NavDebuggerSystem navDebuggerSystem = new NavDebuggerSystem();
 		navDebuggerSystem.priority = 6;
 		window.engine.addSystem(navDebuggerSystem);
+		SteeringSystem steeringSystem = new SteeringSystem();
+		steeringSystem.priority = 7;
+		window.engine.addSystem(steeringSystem);
 
 		play();
 	}
 
 	private void play() {
-		Entity crate = objectCreator.crate(20, 20);
-		window.engine.addEntity(crate);
-		window.engine.getSystem(NavMeshSystem.class).addObjectToMesh(crate);
+//		Entity crate = objectCreator.crate(20, 20);
+//		window.engine.addEntity(crate);
+//		window.engine.getSystem(NavMeshSystem.class).addObjectToMesh(crate);
+//
+//		Entity canoe = objectCreator.canoe(100, 20);
+//		window.engine.addEntity(canoe);
+//		window.engine.getSystem(NavMeshSystem.class).addObjectToMesh(canoe);
+//
+//		Entity trophy = objectCreator.trophy(50, 20);
+//		window.engine.addEntity(trophy);
+//		window.engine.getSystem(NavMeshSystem.class).addObjectToMesh(trophy);
+//
+//		Entity zombieCorpse = objectCreator.zombieCorpse(20, 50);
+//		window.engine.addEntity(zombieCorpse);
+//		window.engine.getSystem(NavMeshSystem.class).addObjectToMesh(zombieCorpse);
 
-		Entity canoe = objectCreator.canoe(100, 20);
-		window.engine.addEntity(canoe);
-		window.engine.getSystem(NavMeshSystem.class).addObjectToMesh(canoe);
-
-		Entity trophy = objectCreator.trophy(50, 20);
-		window.engine.addEntity(trophy);
-		window.engine.getSystem(NavMeshSystem.class).addObjectToMesh(trophy);
-
-		Entity zombieCorpse = objectCreator.zombieCorpse(20, 50);
-		window.engine.addEntity(zombieCorpse);
-		window.engine.getSystem(NavMeshSystem.class).addObjectToMesh(zombieCorpse);
+		Entity zombie = objectCreator.zombie(50, 50);
+		Mappers.str.get(zombie).target = player;
+		window.engine.addEntity(zombie);
 
 //		ImmutableArray<Entity> objects = window.engine.getEntitiesFor(Family.all(DraggableComponent.class).get());
 //		window.engine.getSystem(NavMeshSystem.class).createNavMesh(objects);

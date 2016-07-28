@@ -1,6 +1,7 @@
 package com.matthewmohandiss.zombiegame;
 
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.ai.steer.behaviors.Seek;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -239,7 +240,7 @@ public class ObjectCreator {
 		return player;
 	}
 
-	public void zombie(float xPos, float yPos) {
+	public Entity zombie(float xPos, float yPos) {
 		Entity zombie = genericEntity(Assets.zombie_idle, xPos, yPos);
 
 		PhysicsComponent physicsComponent = window.engine.createComponent(PhysicsComponent.class);
@@ -255,7 +256,7 @@ public class ObjectCreator {
 		FixtureDef fixtureDef = new FixtureDef();
 		fixtureDef.shape = shape;
 		fixtureDef.density = .13f;
-		fixtureDef.friction = 0.9f;
+		fixtureDef.friction = 0.0f;
 
 		body.createFixture(fixtureDef);
 		physicsComponent.physicsBody = body;
@@ -275,9 +276,15 @@ public class ObjectCreator {
 		state.set(PlayerState.idle);
 		zombie.add(state);
 
-		zombie.add(window.engine.createComponent(ZombieComponent.class));
+		SteeringComponent steeringComponent = window.engine.createComponent(SteeringComponent.class);
+		SteerableEntity steerable = new SteerableEntity(body);
+		steeringComponent.steerable = steerable;
+		steeringComponent.steeringBehavior = new Seek<>(steerable);
+		steerable.setSteeringBehavior(steeringComponent.steeringBehavior);
+		zombie.add(steeringComponent);
 
-		window.engine.addEntity(zombie);
+		zombie.add(window.engine.createComponent(ZombieComponent.class));
+		return zombie;
 	}
 
 	public void bullet(Entity player) {
