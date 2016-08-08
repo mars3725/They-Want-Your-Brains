@@ -1,14 +1,17 @@
 package com.matthewmohandiss.zombiegame;
 
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.ai.fsm.DefaultStateMachine;
 import com.badlogic.gdx.ai.steer.behaviors.Seek;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.matthewmohandiss.zombiegame.Enums.Objects;
 import com.matthewmohandiss.zombiegame.Enums.PlayerState;
+import com.matthewmohandiss.zombiegame.Enums.ZombieState;
 import com.matthewmohandiss.zombiegame.components.*;
 
 /**
@@ -224,16 +227,16 @@ public class ObjectCreator {
 		player.add(physicsComponent);
 
 		AnimationComponent animation = window.engine.createComponent(AnimationComponent.class);
-		animation.animations.put(PlayerState.running.ordinal(), new Animation(0.15f, Assets.player_run));
-		animation.animations.put(PlayerState.shooting.ordinal(), new Animation(0.3f, Assets.player_shoot));
-		animation.idleTexture = Assets.player_idle;
-		animation.jumpTexture = Assets.player_jump;
-		animation.fallTexture = Assets.player_fall;
+		ObjectMap<PlayerState, Animation> animationMap = new ObjectMap<>();
+		animationMap.put(PlayerState.RunRight, new Animation(0.15f, Assets.player_run));
+		animationMap.put(PlayerState.RunLeft, new Animation(0.15f, Assets.player_run));
+		animationMap.put(PlayerState.Shoot, new Animation(0.3f, Assets.player_shoot));
+		animation.animations = animationMap;
 		player.add(animation);
 
-		StateComponent state = window.engine.createComponent(StateComponent.class);
-		state.set(PlayerState.idle);
-		player.add(state);
+		PlayerComponent playerComponent = window.engine.createComponent(PlayerComponent.class);
+		playerComponent.stateMachine = new DefaultStateMachine<>(player, PlayerState.Idle, PlayerState.Idle);
+		player.add(playerComponent);
 
 		player.add(window.engine.createComponent(PlayerComponent.class));
 
@@ -265,16 +268,16 @@ public class ObjectCreator {
 		zombie.add(physicsComponent);
 
 		AnimationComponent animation = window.engine.createComponent(AnimationComponent.class);
-		animation.animations.put(PlayerState.running.ordinal(), new Animation(0.15f, Assets.zombie_run));
-		animation.animations.put(PlayerState.dying.ordinal(), new Animation(0.3f, Assets.zombie_die));
-		animation.idleTexture = Assets.zombie_idle;
-		animation.jumpTexture = Assets.player_jump;
-		animation.fallTexture = Assets.player_fall;
+		ObjectMap<PlayerState, Animation> animationMap = new ObjectMap<>();
+		animationMap.put(PlayerState.RunRight, new Animation(0.15f, Assets.zombie_run));
+		animationMap.put(PlayerState.RunLeft, new Animation(0.15f, Assets.zombie_run));
+		animationMap.put(PlayerState.Die, new Animation(0.3f, Assets.zombie_die));
+		animation.animations = animationMap;
 		zombie.add(animation);
 
-		StateComponent state = window.engine.createComponent(StateComponent.class);
-		state.set(PlayerState.idle);
-		zombie.add(state);
+		ZombieComponent zombieComponent = window.engine.createComponent(ZombieComponent.class);
+		zombieComponent.stateMachine = new DefaultStateMachine<>(zombie, ZombieState.Idle, ZombieState.Idle);
+		zombie.add(zombieComponent);
 
 		SteeringComponent steeringComponent = window.engine.createComponent(SteeringComponent.class);
 		SteerableEntity steerable = new SteerableEntity(body);

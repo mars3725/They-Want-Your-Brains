@@ -12,7 +12,6 @@ public class Mappers {
 	public static ComponentMapper<SizeComponent> sm = ComponentMapper.getFor(SizeComponent.class);
 	public static ComponentMapper<CameraComponent> cm = ComponentMapper.getFor(CameraComponent.class);
 	public static ComponentMapper<AnimationComponent> am = ComponentMapper.getFor(AnimationComponent.class);
-	public static ComponentMapper<StateComponent> stm = ComponentMapper.getFor(StateComponent.class);
 	public static ComponentMapper<PhysicsComponent> phm = ComponentMapper.getFor(PhysicsComponent.class);
 	public static ComponentMapper<HUDComponent> hm = ComponentMapper.getFor(HUDComponent.class);
 	public static ComponentMapper<TextComponent> txm = ComponentMapper.getFor(TextComponent.class);

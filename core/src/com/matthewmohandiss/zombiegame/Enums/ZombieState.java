@@ -9,16 +9,16 @@ import com.matthewmohandiss.zombiegame.Mappers;
 import com.matthewmohandiss.zombiegame.components.AnimationComponent;
 
 /**
- * Created by Matthew on 7/31/16.
+ * Created by Matthew on 8/6/16.
  */
-public enum PlayerState implements State<Entity> {
+public enum ZombieState implements State<Entity> {
 
 
 	RunLeft() {
 		@Override
 		public void enter(Entity entity) {
 			AnimationComponent animation = Mappers.am.get(entity);
-			animation.activeAnimation = (Animation) animation.animations.get(RunLeft);
+			animation.activeAnimation = (Animation) animation.animations.get(ZombieState.RunLeft);
 			animation.loop = true;
 			animation.flipped = true;
 		}
@@ -54,7 +54,7 @@ public enum PlayerState implements State<Entity> {
 		}
 	},
 
-	Jump() {
+	Climb() {
 		@Override
 		public void enter(Entity entity) {
 			Mappers.am.get(entity).loop = false;
@@ -90,31 +90,11 @@ public enum PlayerState implements State<Entity> {
 		}
 	},
 
-	Shoot() {
-		@Override
-		public void enter(Entity entity) {
-			AnimationComponent animation = Mappers.am.get(entity);
-			animation.activeAnimation = (Animation) animation.animations.get(Shoot);
-			animation.loop = false;
-		}
-
-		@Override
-		public void update(Entity entity) {
-
-		}
-
-		@Override
-		public void exit(Entity entity) {
-
-		}
-	},
-
 	Die() {
 		@Override
 		public void enter(Entity entity) {
 			AnimationComponent animation = Mappers.am.get(entity);
-			animation.activeAnimation = (Animation) animation.animations.get(Shoot);
-			System.out.println("dead. fix later");
+			animation.activeAnimation = (Animation) animation.animations.get(Die);
 			animation.loop = false;
 		}
 
@@ -139,7 +119,7 @@ public enum PlayerState implements State<Entity> {
 		@Override
 		public void update(Entity entity) {
 			if (Mappers.phm.get(entity).physicsBody.getLinearVelocity().y == 0) {
-				Mappers.plm.get(entity).stateMachine.changeState(Idle);
+				Mappers.zm.get(entity).stateMachine.changeState(Idle);
 			}
 		}
 
@@ -148,7 +128,6 @@ public enum PlayerState implements State<Entity> {
 
 		}
 	};
-
 
 	@Override
 	public boolean onMessage(Entity entity, Telegram telegram) {

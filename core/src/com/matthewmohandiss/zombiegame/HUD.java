@@ -65,7 +65,7 @@ public class HUD {
 
 	public void updateDevHUD() {
 		Mappers.txm.get(playerLocation).text = "(" + Mappers.pm.get(game.player).x + ", " + Mappers.pm.get(game.player).y + ")";
-		Mappers.txm.get(playerState).text = Mappers.stm.get(game.player).state.name();
+		Mappers.txm.get(playerState).text = Mappers.plm.get(game.player).stateMachine.getCurrentState().name();
 		Mappers.txm.get(windowSize).text = "(" + window.hudCamera.viewportWidth + ", " + window.hudCamera.viewportHeight + ")";
 		Mappers.txm.get(windowZoom).text = String.valueOf(window.camera.zoom);
 		Mappers.txm.get(FPS).text = String.valueOf(Gdx.graphics.getFramesPerSecond());

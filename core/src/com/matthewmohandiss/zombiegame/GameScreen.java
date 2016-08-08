@@ -5,13 +5,15 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.ai.fsm.DefaultStateMachine;
+import com.badlogic.gdx.ai.fsm.StateMachine;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.utils.Timer;
 import com.matthewmohandiss.zombiegame.Enums.PlayerState;
+import com.matthewmohandiss.zombiegame.Enums.ZombieState;
 import com.matthewmohandiss.zombiegame.components.CameraComponent;
 import com.matthewmohandiss.zombiegame.components.PhysicsComponent;
-import com.matthewmohandiss.zombiegame.components.PlayerComponent;
 import com.matthewmohandiss.zombiegame.systems.*;
 
 import java.util.ArrayList;
@@ -49,18 +51,24 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 		window.engine.addEntity(player);
 		Mappers.cm.get(cam).target = player;
 
-		ControlSystem controlSystem = new ControlSystem(window.engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).first());
-		controlSystem.priority = 7;
-		window.engine.addSystem(controlSystem);
+		Mappers.plm.get(player).stateMachine = new DefaultStateMachine<>(player, PlayerState.Idle, PlayerState.Idle);
+
 		PhysicsSystem physicsSystem = new PhysicsSystem(physicsWorld.world);
 		physicsSystem.priority = 1;
 		window.engine.addSystem(physicsSystem);
+
+		FSMSystem fsmSystem = new FSMSystem();
+		fsmSystem.priority = 2;
+		window.engine.addSystem(fsmSystem);
+
 		NavMeshSystem navMeshSystem = new NavMeshSystem(physicsWorld, window);
 		navMeshSystem.priority = 5;
 		window.engine.addSystem(navMeshSystem);
+
 		NavDebuggerSystem navDebuggerSystem = new NavDebuggerSystem();
 		navDebuggerSystem.priority = 6;
 		window.engine.addSystem(navDebuggerSystem);
+
 		SteeringSystem steeringSystem = new SteeringSystem();
 		steeringSystem.priority = 7;
 		window.engine.addSystem(steeringSystem);
@@ -69,9 +77,9 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 	}
 
 	private void play() {
-//		Entity crate = objectCreator.crate(20, 20);
-//		window.engine.addEntity(crate);
-//		window.engine.getSystem(NavMeshSystem.class).addObjectToMesh(crate);
+		Entity crate = objectCreator.crate(20, 20);
+		window.engine.addEntity(crate);
+		window.engine.getSystem(NavMeshSystem.class).addObjectToMesh(crate);
 //
 //		Entity canoe = objectCreator.canoe(100, 20);
 //		window.engine.addEntity(canoe);
@@ -87,6 +95,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 
 		Entity zombie = objectCreator.zombie(50, 50);
 		Mappers.str.get(zombie).target = player;
+		Mappers.zm.get(zombie).stateMachine = new DefaultStateMachine<>(zombie, ZombieState.Idle, ZombieState.Idle);
 		window.engine.addEntity(zombie);
 
 //		ImmutableArray<Entity> objects = window.engine.getEntitiesFor(Family.all(DraggableComponent.class).get());
@@ -95,7 +104,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 
 	public void contactResolver(final Entity entityA, Entity entityB) {
 		if (Mappers.zm.get(entityA) != null && Mappers.bm.get(entityB) != null) {
-			Mappers.stm.get(entityA).set(PlayerState.dying);
+			Mappers.plm.get(entityA).stateMachine.changeState(PlayerState.Die);
 			Mappers.am.get(entityA).loop = false;
 			entitiesForRemoval.add(entityB);
 
@@ -132,18 +141,21 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 
 	@Override
 	public boolean keyDown(int keycode) {
+		StateMachine<Entity, PlayerState> stateMachine = Mappers.plm.get(player).stateMachine;
 		switch (keycode) {
 			case 19: //up
-				window.engine.getSystem(ControlSystem.class).jump();
+				stateMachine.changeState(PlayerState.Jump);
 				break;
 			case 21: //left
-				window.engine.getSystem(ControlSystem.class).moveLeft();
+				stateMachine.changeState(PlayerState.RunLeft);
 				break;
 			case 22: //right
-				window.engine.getSystem(ControlSystem.class).moveRight();
+				stateMachine.changeState(PlayerState.RunRight);
 				break;
 			case 62: //space
-				window.engine.getSystem(ControlSystem.class).shoot();
+				if (!stateMachine.isInState(PlayerState.Jump)) {
+					stateMachine.changeState(PlayerState.Jump);
+				}
 				objectCreator.bullet(player);
 				break;
 			case 69: //minus
@@ -162,10 +174,9 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 
 	@Override
 	public boolean keyUp(int keycode) {
-		if (keycode == 21 && Mappers.stm.get(player).state == PlayerState.running) {
-			window.engine.getSystem(ControlSystem.class).idle();
-		} else if (keycode == 22 && Mappers.stm.get(player).state == PlayerState.running) {
-			window.engine.getSystem(ControlSystem.class).idle();
+		StateMachine<Entity, PlayerState> stateMachine = Mappers.plm.get(player).stateMachine;
+		if (stateMachine.isInState(PlayerState.RunLeft) || stateMachine.isInState(PlayerState.RunRight)) {
+			stateMachine.changeState(PlayerState.Idle);
 		}
 		return false;
 	}
