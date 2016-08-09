@@ -20,10 +20,12 @@ import com.matthewmohandiss.zombiegame.components.*;
 public class ObjectCreator {
 	private GameLauncher window;
 	private World world;
+	private GameScreen game;
 
-	public ObjectCreator(GameLauncher window, World world) {
-		this.window = window;
-		this.world = world;
+	public ObjectCreator(GameScreen game) {
+		this.game = game;
+		this.world = game.physicsWorld.world;
+		this.window = game.window;
 	}
 
 	public Entity crate(float x, float y) {
@@ -200,7 +202,7 @@ public class ObjectCreator {
 		return object;
 	}
 
-	//Special Objects
+	//Special objects
 
 	public Entity player(float xPos, float yPos) {
 		Entity player = genericEntity(Assets.player_idle, xPos, yPos);
@@ -268,10 +270,12 @@ public class ObjectCreator {
 		zombie.add(physicsComponent);
 
 		AnimationComponent animation = window.engine.createComponent(AnimationComponent.class);
-		ObjectMap<PlayerState, Animation> animationMap = new ObjectMap<>();
-		animationMap.put(PlayerState.RunRight, new Animation(0.15f, Assets.zombie_run));
-		animationMap.put(PlayerState.RunLeft, new Animation(0.15f, Assets.zombie_run));
-		animationMap.put(PlayerState.Die, new Animation(0.3f, Assets.zombie_die));
+		ObjectMap<ZombieState, Animation> animationMap = new ObjectMap<>();
+		animationMap.put(ZombieState.RunRight, new Animation(0.3f, Assets.zombie_run));
+		animationMap.put(ZombieState.RunLeft, new Animation(0.3f, Assets.zombie_run));
+		animationMap.put(ZombieState.Die, new Animation(0.3f, Assets.zombie_die));
+		animationMap.put(ZombieState.Jump, new Animation(0.2f, Assets.zombie_jump));
+		animationMap.put(ZombieState.Land, new Animation(0.3f, Assets.zombie_land));
 		animation.animations = animationMap;
 		zombie.add(animation);
 
@@ -280,13 +284,21 @@ public class ObjectCreator {
 		zombie.add(zombieComponent);
 
 		SteeringComponent steeringComponent = window.engine.createComponent(SteeringComponent.class);
-		SteerableEntity steerable = new SteerableEntity(body);
+		SteerableEntity steerable = new SteerableEntity(zombie);
 		steeringComponent.steerable = steerable;
 		steeringComponent.steeringBehavior = new Seek<>(steerable);
 		steerable.setSteeringBehavior(steeringComponent.steeringBehavior);
 		zombie.add(steeringComponent);
 
+		WorldComponent worldComponent = window.engine.createComponent(WorldComponent.class);
+		worldComponent.window = window;
+		worldComponent.game = game;
+		worldComponent.physicsWorld = game.physicsWorld;
+		zombie.add(worldComponent);
+
 		zombie.add(window.engine.createComponent(ZombieComponent.class));
+		Mappers.tm.get(zombie).texture = Assets.zombie_fall;
+
 		return zombie;
 	}
 

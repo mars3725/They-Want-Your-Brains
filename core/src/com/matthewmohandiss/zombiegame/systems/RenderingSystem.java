@@ -7,7 +7,6 @@ import com.badlogic.ashley.systems.SortedIteratingSystem;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.matthewmohandiss.zombiegame.Assets;
 import com.matthewmohandiss.zombiegame.Mappers;
 import com.matthewmohandiss.zombiegame.components.*;
 
@@ -59,6 +58,12 @@ public class RenderingSystem extends SortedIteratingSystem {
 		PositionComponent position = Mappers.pm.get(entity);
 		SizeComponent size = Mappers.sm.get(entity);
 
+		if (Mappers.am.get(entity) != null) {
+			if (Mappers.am.get(entity).flipped != texture.isFlipX()) {
+				texture.flip(true, false);
+			}
+		}
+
 		batch.draw(texture,                                                  //texture
 				position.x - size.width / 2, position.y - size.height / 2,   //bottom left corner
 				size.width / 2, size.height / 2,                             //origin offset
@@ -71,7 +76,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 		TextComponent textComponent = Mappers.txm.get(entity);
 		PositionComponent positionComponent = Mappers.pm.get(entity);
 
-		Assets.font.draw(batch, textComponent.text, positionComponent.x, positionComponent.y);
+		Mappers.txm.get(entity).font.draw(batch, textComponent.text, positionComponent.x, positionComponent.y);
 	}
 
 	private static class ZComparator implements Comparator<Entity> {

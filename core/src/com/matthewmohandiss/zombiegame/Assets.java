@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.tools.texturepacker.TexturePacker;
 import com.badlogic.gdx.utils.Array;
 
@@ -22,14 +21,20 @@ public class Assets {
 	public static TextureRegion pause;
 	public static TextureRegion error;
 	public static TextureRegion test;
+
 	public static TextureRegion player_idle;
 	public static TextureRegion player_jump;
 	public static TextureRegion player_fall;
+
 	public static Array<TextureAtlas.AtlasRegion> player_run;
 	public static Array<TextureAtlas.AtlasRegion> player_shoot;
 	public static Array<TextureAtlas.AtlasRegion> zombie_run;
 	public static Array<TextureAtlas.AtlasRegion> zombie_die;
+	public static Array<TextureAtlas.AtlasRegion> zombie_land;
+	public static Array<TextureAtlas.AtlasRegion> zombie_jump;
+	public static TextureRegion zombie_fall;
 	public static TextureRegion zombie_idle;
+
 	public static TextureRegion crate;
 	public static TextureRegion log;
 	public static TextureRegion bullet;
@@ -40,41 +45,50 @@ public class Assets {
 	//	public static Music music;
 	public static Sound clickSound;
 
-	public static BitmapFont font;
+	public static BitmapFont Gray16ptFont;
+	public static BitmapFont Gray12ptFont;
 
 	public static void load() {
-		TexturePacker.process(Gdx.files.getLocalStoragePath(), Gdx.files.getLocalStoragePath().concat("/pack"), "pack");
-		pack = new TextureAtlas(Gdx.files.internal("pack/pack.atlas"));
+		TexturePacker.process(Gdx.files.getLocalStoragePath().concat("/textures/unpacked"), Gdx.files.getLocalStoragePath().concat("/textures/packed"), "pack");
+		pack = new TextureAtlas(Gdx.files.internal("textures/packed/pack.atlas"));
 
 		background = loadTexture("background");
+		forest_background = loadTexture("forest_background");
 		health = loadTexture("health");
 		mountains = loadTexture("mountains");
 		pause = loadTexture("pause");
 		error = loadTexture("error");
 		test = loadTexture("test");
+
 		player_idle = loadTexture("player_idle");
 		player_jump = loadTexture("player_jump");
 		player_run = pack.findRegions("player_run");
 		player_shoot = pack.findRegions("player_shoot");
+		player_fall = loadTexture("player_fall");
+
+		zombie_die = pack.findRegions("zombie_die");
 		zombie_run = pack.findRegions("zombie_run");
 		zombie_idle = loadTexture("zombie_idle");
-		player_fall = loadTexture("player_fall");
-		forest_background = loadTexture("forest_background");
+		zombie_fall = loadTexture("zombie_fall");
+		zombie_land = pack.findRegions("zombie_land");
+		zombie_jump = pack.findRegions("zombie_jump");
+
 		crate = loadTexture("crate");
 		log = loadTexture("log");
 		bullet = loadTexture("bullet");
 		trophy = loadTexture("trophy");
-		zombie_die = pack.findRegions("zombie_die");
 		zombie_corpse = loadTexture("zombie_corpse");
 		canoe = loadTexture("canoe");
 
-		clickSound = Gdx.audio.newSound(Gdx.files.internal("click.wav"));
+		clickSound = Gdx.audio.newSound(Gdx.files.internal("Sound/click.wav"));
 
-		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("font.ttf"));
-		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-		//parameter.size = 23;
-		font = generator.generateFont(parameter);
-		font.setColor(Color.GRAY);
+		SmartFontGenerator fontGen = new SmartFontGenerator();
+
+		Gray16ptFont = fontGen.createFont(Gdx.files.internal("fonts/font.ttf"), "Gray", 14);
+		Gray16ptFont.setColor(Color.GRAY);
+
+		Gray12ptFont = fontGen.createFont(Gdx.files.internal("fonts/font.ttf"), "Red", 14);
+		Gray12ptFont.setColor(Color.RED);
 	}
 
 	public static TextureRegion loadTexture (String file) {

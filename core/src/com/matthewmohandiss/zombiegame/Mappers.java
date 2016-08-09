@@ -22,4 +22,5 @@ public class Mappers {
 	public static ComponentMapper<NavNodeComponent> nnc = ComponentMapper.getFor(NavNodeComponent.class);
 	public static ComponentMapper<NavEdgeComponent> ncc = ComponentMapper.getFor(NavEdgeComponent.class);
 	public static ComponentMapper<SteeringComponent> str = ComponentMapper.getFor(SteeringComponent.class);
+	public static ComponentMapper<WorldComponent> wc = ComponentMapper.getFor(WorldComponent.class);
 }

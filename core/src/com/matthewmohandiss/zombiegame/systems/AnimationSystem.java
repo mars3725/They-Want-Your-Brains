@@ -21,8 +21,8 @@ public class AnimationSystem extends IteratingSystem {
 	public void processEntity(Entity entity, float deltaTime) {
 		AnimationComponent animation = Mappers.am.get(entity);
 		if (animation.activeAnimation != null) {
-			TextureRegion texture = animation.activeAnimation.getKeyFrame(animation.runningTime, animation.loop);
 			animation.runningTime += deltaTime;
+			TextureRegion texture = animation.activeAnimation.getKeyFrame(animation.runningTime, animation.loop);
 
 			if (animation.flipped && !texture.isFlipX()) {
 				texture.flip(true, false);

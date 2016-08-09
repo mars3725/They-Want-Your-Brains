@@ -9,5 +9,5 @@ import com.matthewmohandiss.zombiegame.Assets;
  */
 public class TextComponent implements Component {
 	public String text = "Default Text";
-	public BitmapFont font = Assets.font;
+	public BitmapFont font = Assets.Gray16ptFont;
 }

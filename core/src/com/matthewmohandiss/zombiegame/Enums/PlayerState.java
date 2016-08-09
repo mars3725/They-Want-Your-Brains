@@ -25,12 +25,13 @@ public enum PlayerState implements State<Entity> {
 
 		@Override
 		public void update(Entity entity) {
-			Mappers.phm.get(entity).physicsBody.applyLinearImpulse(-100f, 0, Mappers.pm.get(entity).x, Mappers.pm.get(entity).y, true);
+			Mappers.phm.get(entity).physicsBody.applyLinearImpulse(-50f, 0, Mappers.pm.get(entity).x, Mappers.pm.get(entity).y, true);
 		}
 
 		@Override
 		public void exit(Entity entity) {
-
+			Mappers.am.get(entity).activeAnimation = null;
+			Mappers.am.get(entity).runningTime = 0;
 		}
 	},
 
@@ -45,12 +46,13 @@ public enum PlayerState implements State<Entity> {
 
 		@Override
 		public void update(Entity entity) {
-			Mappers.phm.get(entity).physicsBody.applyLinearImpulse(100f, 0, Mappers.pm.get(entity).x, Mappers.pm.get(entity).y, true);
+			Mappers.phm.get(entity).physicsBody.applyLinearImpulse(50f, 0, Mappers.pm.get(entity).x, Mappers.pm.get(entity).y, true);
 		}
 
 		@Override
 		public void exit(Entity entity) {
-
+			Mappers.am.get(entity).activeAnimation = null;
+			Mappers.am.get(entity).runningTime = 0;
 		}
 	},
 
@@ -64,7 +66,9 @@ public enum PlayerState implements State<Entity> {
 
 		@Override
 		public void update(Entity entity) {
-
+			if (Mappers.phm.get(entity).physicsBody.getLinearVelocity().y < 0) {
+				Mappers.plm.get(entity).stateMachine.changeState(Fall);
+			}
 		}
 
 		@Override
@@ -76,6 +80,7 @@ public enum PlayerState implements State<Entity> {
 	Idle() {
 		@Override
 		public void enter(Entity entity) {
+			Mappers.phm.get(entity).physicsBody.setLinearVelocity(0, 0);
 			Mappers.tm.get(entity).texture = Assets.player_idle;
 		}
 
@@ -100,12 +105,15 @@ public enum PlayerState implements State<Entity> {
 
 		@Override
 		public void update(Entity entity) {
-
+			if (Mappers.am.get(entity).runningTime > Mappers.am.get(entity).activeAnimation.getAnimationDuration()) {
+				Mappers.plm.get(entity).stateMachine.changeState(Mappers.plm.get(entity).stateMachine.getPreviousState());
+			}
 		}
 
 		@Override
 		public void exit(Entity entity) {
-
+			Mappers.am.get(entity).activeAnimation = null;
+			Mappers.am.get(entity).runningTime = 0;
 		}
 	},
 
@@ -125,7 +133,8 @@ public enum PlayerState implements State<Entity> {
 
 		@Override
 		public void exit(Entity entity) {
-
+			Mappers.am.get(entity).activeAnimation = null;
+			Mappers.am.get(entity).runningTime = 0;
 		}
 	},
 

@@ -1,18 +1,22 @@
 package com.matthewmohandiss.zombiegame;
 
+import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.ai.fsm.StateMachine;
 import com.badlogic.gdx.ai.steer.Steerable;
 import com.badlogic.gdx.ai.steer.SteeringAcceleration;
 import com.badlogic.gdx.ai.steer.SteeringBehavior;
 import com.badlogic.gdx.ai.utils.Location;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.matthewmohandiss.zombiegame.Enums.ZombieState;
 
 /**
  * Created by Matthew on 7/27/16.
  */
 public class SteerableEntity implements Steerable<Vector2> {
-	private static final SteeringAcceleration<Vector2> steeringOutput = new SteeringAcceleration<Vector2>(new Vector2());
+	private static final SteeringAcceleration<Vector2> steeringOutput = new SteeringAcceleration<>(new Vector2());
 	Body body;
+	Entity entity;
 	float boundingRadius = 0;
 	boolean tagged;
 	float maxLinearSpeed = 100;
@@ -21,8 +25,9 @@ public class SteerableEntity implements Steerable<Vector2> {
 	float maxAngularAcceleration = 100;
 	private SteeringBehavior steeringBehavior;
 
-	public SteerableEntity(Body body) {
-		this.body = body;
+	public SteerableEntity(Entity entity) {
+		this.entity = entity;
+		body = Mappers.phm.get(entity).physicsBody;
 	}
 
 	public SteeringBehavior<Vector2> getSteeringBehavior() {
@@ -150,9 +155,21 @@ public class SteerableEntity implements Steerable<Vector2> {
 	protected void applySteering(SteeringAcceleration<Vector2> steering, float deltaTime) {
 		boolean anyAccelerations = false;
 
-		if (!steeringOutput.linear.isZero()) {
-			body.applyForceToCenter(steeringOutput.linear, true);
-			anyAccelerations = true;
+//		if (!steeringOutput.linear.isZero()) {
+//			body.applyForceToCenter(steeringOutput.linear, true);
+//			anyAccelerations = true;
+//		}
+
+		StateMachine<Entity, ZombieState> stateMachine = Mappers.zm.get(entity).stateMachine;
+
+		if (steeringOutput.linear.x < 0 && (stateMachine.isInState(ZombieState.Idle) || stateMachine.isInState(ZombieState.RunRight))) {
+			stateMachine.changeState(ZombieState.RunLeft);
+		} else if (steeringOutput.linear.x > 0 && (stateMachine.isInState(ZombieState.Idle) || stateMachine.isInState(ZombieState.RunLeft))) {
+			stateMachine.changeState(ZombieState.RunRight);
+		}
+
+		if (steeringOutput.linear.y > 15 && (stateMachine.isInState(ZombieState.RunLeft) || stateMachine.isInState(ZombieState.RunRight) || stateMachine.isInState(ZombieState.Idle))) {
+			stateMachine.changeState(ZombieState.Jump);
 		}
 
 //		if (isIndependentFacing()) {
@@ -169,31 +186,31 @@ public class SteerableEntity implements Steerable<Vector2> {
 //			}
 //		}
 
-		if (steeringOutput.linear.y > 10) {
-			body.applyForceToCenter(new Vector2(0, 1000), true);
-		}
+//		if (steeringOutput.linear.y > 10) {
+//			//Mappers.zm.get(entity).stateMachine.changeState(ZombieState.Jump);
+//		}
 
-		if (anyAccelerations) {
-			// body.activate();
-
-			// TODO:
-			// Looks like truncating speeds here after applying forces doesn't work as expected.
-			// We should likely cap speeds form inside an InternalTickCallback, see
-			// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/Simulation_Tick_Callbacks
-
-			// Cap the linear speed
-			Vector2 velocity = body.getLinearVelocity();
-			float currentSpeedSquare = velocity.len2();
-			float maxLinearSpeed = getMaxLinearSpeed();
-			if (currentSpeedSquare > maxLinearSpeed * maxLinearSpeed) {
-				body.setLinearVelocity(velocity.scl(maxLinearSpeed / (float) Math.sqrt(currentSpeedSquare)));
-			}
-
-			// Cap the angular speed
-			float maxAngVelocity = getMaxAngularSpeed();
-			if (body.getAngularVelocity() > maxAngVelocity) {
-				body.setAngularVelocity(maxAngVelocity);
-			}
-		}
+//		if (anyAccelerations) {
+//			// body.activate();
+//
+//			// TODO:
+//			// Looks like truncating speeds here after applying forces doesn't work as expected.
+//			// We should likely cap speeds form inside an InternalTickCallback, see
+//			// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/Simulation_Tick_Callbacks
+//
+//			// Cap the linear speed
+//			Vector2 velocity = body.getLinearVelocity();
+//			float currentSpeedSquare = velocity.len2();
+//			float maxLinearSpeed = getMaxLinearSpeed();
+//			if (currentSpeedSquare > maxLinearSpeed * maxLinearSpeed) {
+//				body.setLinearVelocity(velocity.scl(maxLinearSpeed / (float) Math.sqrt(currentSpeedSquare)));
+//			}
+//
+//			// Cap the angular speed
+//			float maxAngVelocity = getMaxAngularSpeed();
+//			if (body.getAngularVelocity() > maxAngVelocity) {
+//				body.setAngularVelocity(maxAngVelocity);
+//			}
+//		}
 	}
 }

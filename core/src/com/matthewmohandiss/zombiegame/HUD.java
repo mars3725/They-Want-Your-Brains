@@ -20,6 +20,7 @@ public class HUD {
 	private Entity windowZoom;
 	private Entity FPS;
 	private Entity mousePosition;
+	private Entity zombieState;
 
 	public HUD(GameLauncher window, GameScreen game) {
 		this.window = window;
@@ -47,6 +48,11 @@ public class HUD {
 
 		mousePosition = createLabel(-halfWindowWidth, halfWindowHeight - 30);
 		window.engine.addEntity(mousePosition);
+
+		zombieState = createLabel(Mappers.pm.get(game.zombie).x, Mappers.pm.get(game.zombie).y);
+		Mappers.txm.get(zombieState).font = Assets.Gray12ptFont;
+		window.engine.addEntity(zombieState);
+		zombieState.remove(HUDComponent.class);
 	}
 
 	private Entity createLabel(float xPos, float yPos) {
@@ -71,6 +77,17 @@ public class HUD {
 		Mappers.txm.get(FPS).text = String.valueOf(Gdx.graphics.getFramesPerSecond());
 		Vector3 location = window.camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
 		Mappers.txm.get(mousePosition).text = "(" + location.x + ", " + location.y + ")";
+		if (Mappers.pm.get(game.zombie) != null) {
+			Mappers.pm.get(zombieState).x = Mappers.pm.get(game.zombie).x - 15;
+			Mappers.pm.get(zombieState).y = Mappers.pm.get(game.zombie).y + 50;
+			if (Mappers.zm.get(game.zombie).stateMachine != null) {
+				Mappers.txm.get(zombieState).text = Mappers.zm.get(game.zombie).stateMachine.getCurrentState().name();
+			} else {
+				Mappers.txm.get(zombieState).text = "null";
+			}
+		} else {
+			Mappers.txm.get(zombieState).text = null;
+		}
 	}
 
 }
