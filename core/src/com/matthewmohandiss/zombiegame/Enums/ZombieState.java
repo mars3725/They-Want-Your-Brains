@@ -38,7 +38,8 @@ public enum ZombieState implements State<Entity> {
 
 		@Override
 		public void exit(Entity entity) {
-
+			Mappers.am.get(entity).activeAnimation = null;
+			Mappers.am.get(entity).runningTime = 0;
 		}
 	},
 
@@ -79,7 +80,13 @@ public enum ZombieState implements State<Entity> {
 			animation.activeAnimation = (Animation) animation.animations.get(Jump);
 			animation.loop = false;
 
-			Mappers.phm.get(entity).physicsBody.applyLinearImpulse(0, 600, Mappers.pm.get(entity).x, Mappers.pm.get(entity).y, true);
+			if (Mappers.zm.get(entity).stateMachine.getPreviousState() == ZombieState.RunRight) {
+				Mappers.phm.get(entity).physicsBody.applyLinearImpulse(50, 750, Mappers.pm.get(entity).x, Mappers.pm.get(entity).y, true);
+			} else if (Mappers.zm.get(entity).stateMachine.getPreviousState() == ZombieState.RunLeft) {
+				Mappers.phm.get(entity).physicsBody.applyLinearImpulse(-50, 750, Mappers.pm.get(entity).x, Mappers.pm.get(entity).y, true);
+			} else {
+				Mappers.phm.get(entity).physicsBody.applyLinearImpulse(0, 750, Mappers.pm.get(entity).x, Mappers.pm.get(entity).y, true);
+			}
 		}
 
 		@Override
@@ -126,8 +133,9 @@ public enum ZombieState implements State<Entity> {
 		public void update(Entity entity) {
 			if (Mappers.am.get(entity).activeAnimation.isAnimationFinished(Mappers.am.get(entity).runningTime)) {
 				Mappers.wc.get(entity).game.removeEntity(entity);
+				Mappers.wc.get(entity).game.zombie = null;
 			} else {
-				Mappers.phm.get(entity).physicsBody.setAwake(false);
+				Mappers.phm.get(entity).physicsBody.setLinearVelocity(0, Mappers.phm.get(entity).physicsBody.getLinearVelocity().y);
 			}
 		}
 
@@ -168,13 +176,53 @@ public enum ZombieState implements State<Entity> {
 
 		@Override
 		public void update(Entity entity) {
-			if (Mappers.phm.get(entity).physicsBody.getLinearVelocity().y < 1) {
+			if (Mappers.phm.get(entity).physicsBody.getLinearVelocity().y < 1 && Mappers.phm.get(entity).physicsBody.getLinearVelocity().y >= 0) {
 				Mappers.zm.get(entity).stateMachine.changeState(Idle);
 			}
 		}
 
 		@Override
 		public void exit(Entity entity) {
+
+		}
+	},
+
+	Attack() {
+		@Override
+		public void enter(Entity entity) {
+			AnimationComponent animation = Mappers.am.get(entity);
+			animation.activeAnimation = (Animation) animation.animations.get(Attack);
+			animation.loop = true;
+		}
+
+		@Override
+		public void update(Entity entity) {
+			Mappers.phm.get(entity).physicsBody.setLinearVelocity(0, Mappers.phm.get(entity).physicsBody.getLinearVelocity().y);
+		}
+
+		@Override
+		public void exit(Entity entity) {
+			Mappers.am.get(entity).activeAnimation = null;
+			Mappers.am.get(entity).runningTime = 0;
+		}
+	},
+
+	Global() {
+		@Override
+		public void enter(Entity entity) {
+			//never called
+		}
+
+		@Override
+		public void update(Entity entity) {
+			if (Mappers.phm.get(entity).physicsBody.getLinearVelocity().y < -7.5 && !Mappers.zm.get(entity).stateMachine.isInState(Fall) && !Mappers.zm.get(entity).stateMachine.isInState(Die)) {
+				Mappers.zm.get(entity).stateMachine.changeState(Fall);
+			}
+		}
+
+		@Override
+		public void exit(Entity entity) {
+			//never called
 		}
 	};
 

@@ -19,7 +19,7 @@ public class PhysicsWorld implements ContactListener {
 	public float worldWidth;
 	public float worldHeight;
 	private GameScreen game;
-	QueryCallback callback = new QueryCallback() {
+	QueryCallback touchCallback = new QueryCallback() {
 		@Override
 		public boolean reportFixture(Fixture fixture) {
 			if (fixture.testPoint(touchPoint.x, touchPoint.y) && Mappers.dc.get(game.getEntityForPhysicsBody(fixture.getBody())) != null) {
@@ -51,7 +51,7 @@ public class PhysicsWorld implements ContactListener {
 
 	public void touch(Vector3 testPoint) {
 		//System.out.println("touch at: " + testPoint);
-		world.QueryAABB(callback, testPoint.x, testPoint.y, testPoint.x, testPoint.y);
+		world.QueryAABB(touchCallback, testPoint.x, testPoint.y, testPoint.x, testPoint.y);
 	}
 
 	public Array<Body> getDraggableBodies() {
@@ -71,13 +71,14 @@ public class PhysicsWorld implements ContactListener {
 
 	@Override
 	public void beginContact(Contact contact) {
-		game.contactResolver(game.getEntityForPhysicsBody(contact.getFixtureA().getBody()), game.getEntityForPhysicsBody(contact.getFixtureB().getBody()));
-		game.contactResolver(game.getEntityForPhysicsBody(contact.getFixtureB().getBody()), game.getEntityForPhysicsBody(contact.getFixtureA().getBody()));
+		game.beginContactResolver(contact.getFixtureA(), contact.getFixtureB());
+		game.beginContactResolver(contact.getFixtureB(), contact.getFixtureA());
 	}
 
 	@Override
 	public void endContact(Contact contact) {
-
+		game.endContactResolver(contact.getFixtureA(), contact.getFixtureB());
+		game.endContactResolver(contact.getFixtureB(), contact.getFixtureA());
 	}
 
 	@Override

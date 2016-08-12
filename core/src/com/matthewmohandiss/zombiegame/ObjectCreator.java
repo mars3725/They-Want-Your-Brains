@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.matthewmohandiss.zombiegame.Enums.CollisionMask;
 import com.matthewmohandiss.zombiegame.Enums.Objects;
 import com.matthewmohandiss.zombiegame.Enums.PlayerState;
 import com.matthewmohandiss.zombiegame.Enums.ZombieState;
@@ -46,6 +47,7 @@ public class ObjectCreator {
 		fixtureDef.shape = shape;
 		fixtureDef.density = 1.5f;
 		fixtureDef.friction = 0.9f;
+		fixtureDef.filter.categoryBits = ((short) CollisionMask.object.ordinal());
 		Vector2[] arr = new Vector2[10];
 		for (int i = 0; i < shape.getVertexCount(); i++) {
 			arr[i] = new Vector2(0, 0);
@@ -80,6 +82,7 @@ public class ObjectCreator {
 		fixtureDef.shape = shape;
 		fixtureDef.density = 1.5f;
 		fixtureDef.friction = 0.9f;
+		fixtureDef.filter.categoryBits = ((short) CollisionMask.object.ordinal());
 
 		body.createFixture(fixtureDef);
 		physicsComponent.physicsBody = body;
@@ -108,6 +111,7 @@ public class ObjectCreator {
 		fixtureDef.shape = shape;
 		fixtureDef.density = 1.5f;
 		fixtureDef.friction = 0.9f;
+		fixtureDef.filter.categoryBits = ((short) CollisionMask.object.ordinal());
 
 		body.createFixture(fixtureDef);
 		physicsComponent.physicsBody = body;
@@ -136,6 +140,7 @@ public class ObjectCreator {
 		fixtureDef.shape = shape;
 		fixtureDef.density = 1.5f;
 		fixtureDef.friction = 0.9f;
+		fixtureDef.filter.categoryBits = ((short) CollisionMask.object.ordinal());
 
 		body.createFixture(fixtureDef);
 		physicsComponent.physicsBody = body;
@@ -164,6 +169,7 @@ public class ObjectCreator {
 		fixtureDef.shape = shape;
 		fixtureDef.density = 1.5f;
 		fixtureDef.friction = 0.9f;
+		fixtureDef.filter.categoryBits = ((short) CollisionMask.object.ordinal());
 
 		body.createFixture(fixtureDef);
 		physicsComponent.physicsBody = body;
@@ -192,6 +198,7 @@ public class ObjectCreator {
 		fixtureDef.shape = shape;
 		fixtureDef.density = 1.5f;
 		fixtureDef.friction = 0.9f;
+		fixtureDef.filter.categoryBits = ((short) CollisionMask.object.ordinal());
 
 		body.createFixture(fixtureDef);
 		physicsComponent.physicsBody = body;
@@ -221,6 +228,12 @@ public class ObjectCreator {
 		fixtureDef.shape = shape;
 		fixtureDef.density = .13f;
 		fixtureDef.friction = 0.9f;
+		fixtureDef.filter.categoryBits = ((short) CollisionMask.player_body.ordinal());
+
+		body.createFixture(createSensor(new Vector2(-(Mappers.sm.get(player).width / 4), 0), CollisionMask.player_left.ordinal()));
+		body.createFixture(createSensor(new Vector2(Mappers.sm.get(player).width / 4, 0), CollisionMask.player_right.ordinal()));
+		body.createFixture(createSensor(new Vector2(0, -(Mappers.sm.get(player).height / 2)), CollisionMask.player_bottom.ordinal()));
+		body.createFixture(createSensor(new Vector2(0, Mappers.sm.get(player).height / 2), CollisionMask.player_top.ordinal()));
 
 		body.createFixture(fixtureDef);
 		physicsComponent.physicsBody = body;
@@ -262,6 +275,12 @@ public class ObjectCreator {
 		fixtureDef.shape = shape;
 		fixtureDef.density = .13f;
 		fixtureDef.friction = 0.0f;
+		fixtureDef.filter.categoryBits = ((short) CollisionMask.zombie_body.ordinal());
+
+		body.createFixture(createSensor(new Vector2(-(Mappers.sm.get(zombie).width / 6), 0), CollisionMask.zombie_left.ordinal()));
+		body.createFixture(createSensor(new Vector2(Mappers.sm.get(zombie).width / 6, 0), CollisionMask.zombie_right.ordinal()));
+		body.createFixture(createSensor(new Vector2(0, -(Mappers.sm.get(zombie).height / 2)), CollisionMask.zombie_bottom.ordinal()));
+		body.createFixture(createSensor(new Vector2(0, Mappers.sm.get(zombie).height / 2), CollisionMask.zombie_top.ordinal()));
 
 		body.createFixture(fixtureDef);
 		physicsComponent.physicsBody = body;
@@ -276,6 +295,7 @@ public class ObjectCreator {
 		animationMap.put(ZombieState.Die, new Animation(0.3f, Assets.zombie_die));
 		animationMap.put(ZombieState.Jump, new Animation(0.2f, Assets.zombie_jump));
 		animationMap.put(ZombieState.Land, new Animation(0.3f, Assets.zombie_land));
+		animationMap.put(ZombieState.Attack, new Animation(0.25f, Assets.zombie_attack));
 		animation.animations = animationMap;
 		zombie.add(animation);
 
@@ -331,6 +351,7 @@ public class ObjectCreator {
 		FixtureDef fixtureDef = new FixtureDef();
 		fixtureDef.shape = shape;
 		fixtureDef.density = .5f;
+		fixtureDef.filter.categoryBits = ((short) CollisionMask.bullet.ordinal());
 
 		body.createFixture(fixtureDef);
 		physicsComponent.physicsBody = body;
@@ -364,11 +385,23 @@ public class ObjectCreator {
 		FixtureDef fixtureDef = new FixtureDef();
 		fixtureDef.shape = loop;
 		fixtureDef.friction = 1.5f;
+		fixtureDef.filter.categoryBits = ((short) CollisionMask.boundary.ordinal());
 		body.createFixture(fixtureDef);
 		physicsComponent.physicsBody = body;
 		loop.dispose();
 		background.add(physicsComponent);
 		return background;
+	}
+
+	private FixtureDef createSensor(Vector2 position, int bitmask) {
+		PolygonShape sensorShape = new PolygonShape();
+		sensorShape.setAsBox(1, 1, position, 0);
+		FixtureDef sensorDef = new FixtureDef();
+		sensorDef.filter.categoryBits = ((short) bitmask);
+		sensorDef.shape = sensorShape;
+		sensorDef.isSensor = true;
+
+		return sensorDef;
 	}
 
 	public Entity genericEntity(TextureRegion texture, float xPos, float yPos) {

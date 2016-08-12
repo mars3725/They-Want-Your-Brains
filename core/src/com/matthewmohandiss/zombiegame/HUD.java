@@ -77,7 +77,7 @@ public class HUD {
 		Mappers.txm.get(FPS).text = String.valueOf(Gdx.graphics.getFramesPerSecond());
 		Vector3 location = window.camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
 		Mappers.txm.get(mousePosition).text = "(" + location.x + ", " + location.y + ")";
-		if (Mappers.pm.get(game.zombie) != null) {
+		if (game.zombie != null && Mappers.pm.get(game.zombie) != null) {
 			Mappers.pm.get(zombieState).x = Mappers.pm.get(game.zombie).x - 15;
 			Mappers.pm.get(zombieState).y = Mappers.pm.get(game.zombie).y + 50;
 			if (Mappers.zm.get(game.zombie).stateMachine != null) {
@@ -86,7 +86,7 @@ public class HUD {
 				Mappers.txm.get(zombieState).text = "null";
 			}
 		} else {
-			Mappers.txm.get(zombieState).text = null;
+			Mappers.txm.get(zombieState).text = "";
 		}
 	}
 

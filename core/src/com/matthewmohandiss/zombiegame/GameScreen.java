@@ -9,6 +9,8 @@ import com.badlogic.gdx.ai.fsm.DefaultStateMachine;
 import com.badlogic.gdx.ai.fsm.StateMachine;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.Fixture;
+import com.matthewmohandiss.zombiegame.Enums.CollisionMask;
 import com.matthewmohandiss.zombiegame.Enums.PlayerState;
 import com.matthewmohandiss.zombiegame.Enums.ZombieState;
 import com.matthewmohandiss.zombiegame.components.CameraComponent;
@@ -76,7 +78,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 	}
 
 	private void play() {
-		Entity crate = objectCreator.crate(20, 20);
+		Entity crate = objectCreator.crate(70, 20);
 		window.engine.addEntity(crate);
 		window.engine.getSystem(NavMeshSystem.class).addObjectToMesh(crate);
 
@@ -92,9 +94,9 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 //		window.engine.addEntity(zombieCorpse);
 //		window.engine.getSystem(NavMeshSystem.class).addObjectToMesh(zombieCorpse);
 
-		Entity zombie = objectCreator.zombie(50, 100);
+		Entity zombie = objectCreator.zombie(50, 25);
 		Mappers.str.get(zombie).target = player;
-		Mappers.zm.get(zombie).stateMachine = new DefaultStateMachine<>(zombie, ZombieState.Fall);
+		Mappers.zm.get(zombie).stateMachine = new DefaultStateMachine<>(zombie, ZombieState.Fall, ZombieState.Global);
 		window.engine.addEntity(zombie);
 		this.zombie = zombie;
 
@@ -103,13 +105,32 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 		hud.createDevHUD();
 	}
 
-	public void contactResolver(final Entity entityA, Entity entityB) {
-		if (Mappers.zm.get(entityA) != null && Mappers.bm.get(entityB) != null) {
+	public void beginContactResolver(Fixture fixtureA, Fixture fixtureB) {
+		int maskA = fixtureA.getFilterData().categoryBits;
+		int maskB = fixtureB.getFilterData().categoryBits;
+		Entity entityA = getEntityForPhysicsBody(fixtureA.getBody());
+		Entity entityB = getEntityForPhysicsBody(fixtureB.getBody());
+
+		if (maskA == CollisionMask.zombie_body.ordinal() && (maskB == CollisionMask.player_right.ordinal() || maskB == CollisionMask.player_left.ordinal())) {
+			Mappers.zm.get(entityA).stateMachine.changeState(ZombieState.Attack);
+		}
+
+		if (maskA == CollisionMask.zombie_body.ordinal() && maskB == CollisionMask.bullet.ordinal()) {
 			if (!Mappers.zm.get(entityA).stateMachine.isInState(ZombieState.Die)) {
 				Mappers.zm.get(entityA).stateMachine.changeState(ZombieState.Die);
 			}
-
 			entitiesForRemoval.add(entityB);
+		}
+	}
+
+	public void endContactResolver(Fixture fixtureA, Fixture fixtureB) {
+		int maskA = fixtureA.getFilterData().categoryBits;
+		int maskB = fixtureB.getFilterData().categoryBits;
+		Entity entityA = getEntityForPhysicsBody(fixtureA.getBody());
+		Entity entityB = getEntityForPhysicsBody(fixtureB.getBody());
+
+		if (maskA == CollisionMask.zombie_body.ordinal() && (maskB == CollisionMask.player_right.ordinal() || maskB == CollisionMask.player_left.ordinal())) {
+			Mappers.zm.get(entityA).stateMachine.revertToPreviousState();
 		}
 	}
 

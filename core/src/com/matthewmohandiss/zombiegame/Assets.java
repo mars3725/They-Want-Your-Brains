@@ -22,16 +22,17 @@ public class Assets {
 	public static TextureRegion error;
 	public static TextureRegion test;
 
+	public static Array<TextureAtlas.AtlasRegion> player_run;
+	public static Array<TextureAtlas.AtlasRegion> player_shoot;
 	public static TextureRegion player_idle;
 	public static TextureRegion player_jump;
 	public static TextureRegion player_fall;
 
-	public static Array<TextureAtlas.AtlasRegion> player_run;
-	public static Array<TextureAtlas.AtlasRegion> player_shoot;
 	public static Array<TextureAtlas.AtlasRegion> zombie_run;
 	public static Array<TextureAtlas.AtlasRegion> zombie_die;
 	public static Array<TextureAtlas.AtlasRegion> zombie_land;
 	public static Array<TextureAtlas.AtlasRegion> zombie_jump;
+	public static Array<TextureAtlas.AtlasRegion> zombie_attack;
 	public static TextureRegion zombie_fall;
 	public static TextureRegion zombie_idle;
 
@@ -72,6 +73,7 @@ public class Assets {
 		zombie_fall = loadTexture("zombie_fall");
 		zombie_land = pack.findRegions("zombie_land");
 		zombie_jump = pack.findRegions("zombie_jump");
+		zombie_attack = pack.findRegions("zombie_attack");
 
 		crate = loadTexture("crate");
 		log = loadTexture("log");

@@ -153,64 +153,21 @@ public class SteerableEntity implements Steerable<Vector2> {
 	}
 
 	protected void applySteering(SteeringAcceleration<Vector2> steering, float deltaTime) {
-		boolean anyAccelerations = false;
-
-//		if (!steeringOutput.linear.isZero()) {
-//			body.applyForceToCenter(steeringOutput.linear, true);
-//			anyAccelerations = true;
-//		}
 
 		StateMachine<Entity, ZombieState> stateMachine = Mappers.zm.get(entity).stateMachine;
 
-		if (steeringOutput.linear.x < 0 && (stateMachine.isInState(ZombieState.Idle) || stateMachine.isInState(ZombieState.RunRight))) {
+		if (steering.linear.x < 0 && (stateMachine.isInState(ZombieState.Idle) || stateMachine.isInState(ZombieState.RunRight))) {
 			stateMachine.changeState(ZombieState.RunLeft);
-		} else if (steeringOutput.linear.x > 0 && (stateMachine.isInState(ZombieState.Idle) || stateMachine.isInState(ZombieState.RunLeft))) {
+		} else if (steering.linear.x > 0 && (stateMachine.isInState(ZombieState.Idle) || stateMachine.isInState(ZombieState.RunLeft))) {
 			stateMachine.changeState(ZombieState.RunRight);
 		}
 
-		if (steeringOutput.linear.y > 15 && (stateMachine.isInState(ZombieState.RunLeft) || stateMachine.isInState(ZombieState.RunRight) || stateMachine.isInState(ZombieState.Idle))) {
+		if (steering.linear.y > 15 && (stateMachine.isInState(ZombieState.RunLeft) || stateMachine.isInState(ZombieState.RunRight) || stateMachine.isInState(ZombieState.Idle))) {
 			stateMachine.changeState(ZombieState.Jump);
 		}
 
-//		if (isIndependentFacing()) {
-//			if (steeringOutput.angular != 0) {
-//				body.applyTorque(steeringOutput.angular, true);
-//				anyAccelerations = true;
-//			}
-//		} else {
-//			Vector2 linVel = getLinearVelocity();
-//			if (!linVel.isZero(getZeroLinearSpeedThreshold())) {
-//				float newOrientation = vectorToAngle(linVel);
-//				body.setAngularVelocity((newOrientation - getAngularVelocity()) * deltaTime); // this is superfluous if independentFacing is always true
-//				body.setTransform(body.getPosition(), newOrientation);
-//			}
-//		}
-
-//		if (steeringOutput.linear.y > 10) {
-//			//Mappers.zm.get(entity).stateMachine.changeState(ZombieState.Jump);
-//		}
-
-//		if (anyAccelerations) {
-//			// body.activate();
-//
-//			// TODO:
-//			// Looks like truncating speeds here after applying forces doesn't work as expected.
-//			// We should likely cap speeds form inside an InternalTickCallback, see
-//			// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/Simulation_Tick_Callbacks
-//
-//			// Cap the linear speed
-//			Vector2 velocity = body.getLinearVelocity();
-//			float currentSpeedSquare = velocity.len2();
-//			float maxLinearSpeed = getMaxLinearSpeed();
-//			if (currentSpeedSquare > maxLinearSpeed * maxLinearSpeed) {
-//				body.setLinearVelocity(velocity.scl(maxLinearSpeed / (float) Math.sqrt(currentSpeedSquare)));
-//			}
-//
-//			// Cap the angular speed
-//			float maxAngVelocity = getMaxAngularSpeed();
-//			if (body.getAngularVelocity() > maxAngVelocity) {
-//				body.setAngularVelocity(maxAngVelocity);
-//			}
-//		}
+		if (steering.linear.isZero() && !stateMachine.isInState(ZombieState.Idle)) {
+			stateMachine.changeState(ZombieState.Idle);
+		}
 	}
 }
