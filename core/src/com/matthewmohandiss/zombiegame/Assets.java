@@ -24,6 +24,7 @@ public class Assets {
 
 	public static Array<TextureAtlas.AtlasRegion> player_run;
 	public static Array<TextureAtlas.AtlasRegion> player_shoot;
+	public static Array<TextureAtlas.AtlasRegion> player_down;
 	public static TextureRegion player_idle;
 	public static TextureRegion player_jump;
 	public static TextureRegion player_fall;
@@ -66,6 +67,7 @@ public class Assets {
 		player_run = pack.findRegions("player_run");
 		player_shoot = pack.findRegions("player_shoot");
 		player_fall = loadTexture("player_fall");
+		player_down = pack.findRegions("player_down");
 
 		zombie_die = pack.findRegions("zombie_die");
 		zombie_run = pack.findRegions("zombie_run");

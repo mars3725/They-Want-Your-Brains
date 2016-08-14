@@ -12,7 +12,7 @@ import com.matthewmohandiss.zombiegame.components.SteeringComponent;
 /**
  * Created by Matthew on 8/6/16.
  */
-public enum ZombieState implements State<Entity> {
+public enum ZombieState implements State<Entity> { //need to add a separate state machine for animations
 
 
 	RunLeft() {
@@ -193,6 +193,8 @@ public enum ZombieState implements State<Entity> {
 			AnimationComponent animation = Mappers.am.get(entity);
 			animation.activeAnimation = (Animation) animation.animations.get(Attack);
 			animation.loop = true;
+
+			Mappers.plm.get(Mappers.wc.get(entity).game.player).stateMachine.changeState(PlayerState.Down);
 		}
 
 		@Override

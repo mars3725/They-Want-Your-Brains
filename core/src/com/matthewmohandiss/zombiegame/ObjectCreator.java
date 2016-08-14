@@ -246,6 +246,7 @@ public class ObjectCreator {
 		animationMap.put(PlayerState.RunRight, new Animation(0.15f, Assets.player_run));
 		animationMap.put(PlayerState.RunLeft, new Animation(0.15f, Assets.player_run));
 		animationMap.put(PlayerState.Shoot, new Animation(0.3f, Assets.player_shoot));
+		animationMap.put(PlayerState.Down, new Animation(0.3f, Assets.player_down));
 		animation.animations = animationMap;
 		player.add(animation);
 

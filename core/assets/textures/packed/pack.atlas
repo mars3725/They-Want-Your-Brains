@@ -103,104 +103,153 @@ zombie_corpse
   index: -1
 
 pack3.png
-size: 256,32
+size: 512,32
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
-player_fall
+player_bleed
   rotate: false
   xy: 2, 2
+  size: 18, 28
+  orig: 18, 28
+  offset: 0, 0
+  index: 1
+player_bleed
+  rotate: false
+  xy: 22, 2
+  size: 18, 28
+  orig: 18, 28
+  offset: 0, 0
+  index: 2
+player_bleed
+  rotate: false
+  xy: 42, 2
+  size: 18, 28
+  orig: 18, 28
+  offset: 0, 0
+  index: 3
+player_bleed
+  rotate: false
+  xy: 62, 2
+  size: 18, 28
+  orig: 18, 28
+  offset: 0, 0
+  index: 4
+player_down
+  rotate: false
+  xy: 82, 2
+  size: 18, 28
+  orig: 18, 28
+  offset: 0, 0
+  index: 1
+player_down
+  rotate: false
+  xy: 102, 2
+  size: 18, 28
+  orig: 18, 28
+  offset: 0, 0
+  index: 2
+player_down
+  rotate: false
+  xy: 122, 2
+  size: 18, 28
+  orig: 18, 28
+  offset: 0, 0
+  index: 3
+player_fall
+  rotate: false
+  xy: 142, 2
   size: 18, 28
   orig: 18, 28
   offset: 0, 0
   index: -1
 player_idle
   rotate: false
-  xy: 22, 2
+  xy: 162, 2
   size: 18, 28
   orig: 18, 28
   offset: 0, 0
   index: -1
 player_jump
   rotate: false
-  xy: 42, 2
+  xy: 182, 2
   size: 18, 28
   orig: 18, 28
   offset: 0, 0
   index: -1
 player_run
   rotate: false
-  xy: 62, 2
+  xy: 202, 2
   size: 18, 28
   orig: 18, 28
   offset: 0, 0
   index: 1
 player_run
   rotate: false
-  xy: 82, 2
+  xy: 222, 2
   size: 18, 28
   orig: 18, 28
   offset: 0, 0
   index: 2
 player_run
   rotate: false
-  xy: 102, 2
+  xy: 242, 2
   size: 18, 28
   orig: 18, 28
   offset: 0, 0
   index: 3
 player_run
   rotate: false
-  xy: 122, 2
+  xy: 262, 2
   size: 18, 28
   orig: 18, 28
   offset: 0, 0
   index: 4
 player_shoot
   rotate: false
-  xy: 142, 2
+  xy: 282, 2
   size: 18, 28
   orig: 18, 28
   offset: 0, 0
   index: 1
 player_shoot
   rotate: false
-  xy: 162, 2
+  xy: 302, 2
   size: 18, 28
   orig: 18, 28
   offset: 0, 0
   index: 2
 player_shoot
   rotate: false
-  xy: 162, 2
+  xy: 302, 2
   size: 18, 28
   orig: 18, 28
   offset: 0, 0
   index: 6
 player_shoot
   rotate: false
-  xy: 162, 2
-  size: 18, 28
-  orig: 18, 28
-  offset: 0, 0
-  index: 3
-player_shoot
-  rotate: false
-  xy: 162, 2
+  xy: 302, 2
   size: 18, 28
   orig: 18, 28
   offset: 0, 0
   index: 7
 player_shoot
   rotate: false
-  xy: 182, 2
+  xy: 302, 2
+  size: 18, 28
+  orig: 18, 28
+  offset: 0, 0
+  index: 3
+player_shoot
+  rotate: false
+  xy: 322, 2
   size: 18, 28
   orig: 18, 28
   offset: 0, 0
   index: 4
 player_shoot
   rotate: false
-  xy: 182, 2
+  xy: 322, 2
   size: 18, 28
   orig: 18, 28
   offset: 0, 0
@@ -371,7 +420,7 @@ zombie_run
   size: 28, 28
   orig: 28, 28
   offset: 0, 0
-  index: 8
+  index: 4
 zombie_run
   rotate: false
   xy: 482, 2
@@ -385,7 +434,7 @@ zombie_run
   size: 28, 28
   orig: 28, 28
   offset: 0, 0
-  index: 4
+  index: 8
 zombie_run
   rotate: false
   xy: 512, 2

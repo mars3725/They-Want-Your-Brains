@@ -117,12 +117,11 @@ public enum PlayerState implements State<Entity> {
 		}
 	},
 
-	Die() {
+	Down() {
 		@Override
 		public void enter(Entity entity) {
 			AnimationComponent animation = Mappers.am.get(entity);
-			animation.activeAnimation = (Animation) animation.animations.get(Shoot);
-			System.out.println("dead. fix later");
+			animation.activeAnimation = (Animation) animation.animations.get(Down);
 			animation.loop = false;
 		}
 
