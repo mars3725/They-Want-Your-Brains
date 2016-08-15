@@ -13,9 +13,9 @@ background
   index: -1
 bullet
   rotate: false
-  xy: 1004, 812
-  size: 3, 3
-  orig: 3, 3
+  xy: 1004, 814
+  size: 1, 1
+  orig: 1, 1
   offset: 0, 0
   index: -1
 error
@@ -232,14 +232,14 @@ player_shoot
   size: 18, 28
   orig: 18, 28
   offset: 0, 0
-  index: 7
+  index: 3
 player_shoot
   rotate: false
   xy: 302, 2
   size: 18, 28
   orig: 18, 28
   offset: 0, 0
-  index: 3
+  index: 7
 player_shoot
   rotate: false
   xy: 322, 2
@@ -371,14 +371,14 @@ zombie_jump
   size: 28, 28
   orig: 28, 28
   offset: 0, 0
-  index: 1
+  index: 3
 zombie_jump
   rotate: false
   xy: 332, 2
   size: 28, 28
   orig: 28, 28
   offset: 0, 0
-  index: 3
+  index: 1
 zombie_jump
   rotate: false
   xy: 362, 2
@@ -420,7 +420,7 @@ zombie_run
   size: 28, 28
   orig: 28, 28
   offset: 0, 0
-  index: 4
+  index: 8
 zombie_run
   rotate: false
   xy: 482, 2
@@ -434,7 +434,7 @@ zombie_run
   size: 28, 28
   orig: 28, 28
   offset: 0, 0
-  index: 8
+  index: 4
 zombie_run
   rotate: false
   xy: 512, 2

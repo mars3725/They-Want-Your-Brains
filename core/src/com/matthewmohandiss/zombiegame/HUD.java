@@ -80,8 +80,8 @@ public class HUD {
 		if (game.zombie != null && Mappers.pm.get(game.zombie) != null) {
 			Mappers.pm.get(zombieState).x = Mappers.pm.get(game.zombie).x - 15;
 			Mappers.pm.get(zombieState).y = Mappers.pm.get(game.zombie).y + 50;
-			if (Mappers.zm.get(game.zombie).stateMachine != null) {
-				Mappers.txm.get(zombieState).text = Mappers.zm.get(game.zombie).stateMachine.getCurrentState().name();
+			if (Mappers.str.get(game.zombie) != null) {
+				Mappers.txm.get(zombieState).text = "" + Mappers.str.get(game.zombie).steerable.steeringOutput.linear.y;
 			} else {
 				Mappers.txm.get(zombieState).text = "null";
 			}

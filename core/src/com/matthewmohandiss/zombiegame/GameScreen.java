@@ -48,7 +48,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 
 		physicsWorld.setWorldSize(Mappers.cm.get(cam).maxX, Mappers.cm.get(cam).maxY);
 
-		player = objectCreator.player(150, 30);
+		player = objectCreator.player(100, 40);
 		window.engine.addEntity(player);
 		Mappers.cm.get(cam).target = player;
 
@@ -68,7 +68,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 
 		NavDebuggerSystem navDebuggerSystem = new NavDebuggerSystem();
 		navDebuggerSystem.priority = 6;
-		window.engine.addSystem(navDebuggerSystem);
+		//window.engine.addSystem(navDebuggerSystem);
 
 		SteeringSystem steeringSystem = new SteeringSystem();
 		steeringSystem.priority = 7;
@@ -78,9 +78,13 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 	}
 
 	private void play() {
-		Entity crate = objectCreator.crate(70, 20);
+		Entity crate = objectCreator.crate(100, 20);
 		window.engine.addEntity(crate);
 		window.engine.getSystem(NavMeshSystem.class).addObjectToMesh(crate);
+
+		Entity crate2 = objectCreator.crate(87, 20);
+		window.engine.addEntity(crate2);
+		window.engine.getSystem(NavMeshSystem.class).addObjectToMesh(crate2);
 
 //		Entity canoe = objectCreator.canoe(100, 20);
 //		window.engine.addEntity(canoe);

@@ -5,6 +5,7 @@ import com.badlogic.gdx.ai.fsm.StateMachine;
 import com.badlogic.gdx.ai.steer.Steerable;
 import com.badlogic.gdx.ai.steer.SteeringAcceleration;
 import com.badlogic.gdx.ai.steer.SteeringBehavior;
+import com.badlogic.gdx.ai.steer.behaviors.PrioritySteering;
 import com.badlogic.gdx.ai.utils.Location;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -14,7 +15,7 @@ import com.matthewmohandiss.zombiegame.Enums.ZombieState;
  * Created by Matthew on 7/27/16.
  */
 public class SteerableEntity implements Steerable<Vector2> {
-	private static final SteeringAcceleration<Vector2> steeringOutput = new SteeringAcceleration<>(new Vector2());
+	final SteeringAcceleration<Vector2> steeringOutput = new SteeringAcceleration<>(new Vector2());
 	Body body;
 	Entity entity;
 	float boundingRadius = 0;
@@ -23,6 +24,7 @@ public class SteerableEntity implements Steerable<Vector2> {
 	float maxLinearAcceleration = 100;
 	float maxAngularSpeed = 100;
 	float maxAngularAcceleration = 100;
+	Box2dLocation targetLocation = new Box2dLocation();
 	private SteeringBehavior steeringBehavior;
 
 	public SteerableEntity(Entity entity) {
@@ -146,6 +148,11 @@ public class SteerableEntity implements Steerable<Vector2> {
 	}
 
 	public void update(float delta) {
+		if (((PrioritySteering) steeringBehavior).getSelectedBehaviorIndex() == 0) {
+			Entity target = Mappers.str.get(entity).target;
+			targetLocation.setPosition(Mappers.phm.get(target).physicsBody.getPosition());
+			Mappers.str.get(entity).seekBehavior.setTarget(targetLocation);
+		}
 		if (steeringBehavior != null) {
 			steeringBehavior.calculateSteering(steeringOutput);
 			applySteering(steeringOutput, delta);
@@ -162,7 +169,7 @@ public class SteerableEntity implements Steerable<Vector2> {
 			stateMachine.changeState(ZombieState.RunRight);
 		}
 
-		if (steering.linear.y > 15 && (stateMachine.isInState(ZombieState.RunLeft) || stateMachine.isInState(ZombieState.RunRight) || stateMachine.isInState(ZombieState.Idle))) {
+		if (steering.linear.y > 75 && (stateMachine.isInState(ZombieState.RunLeft) || stateMachine.isInState(ZombieState.RunRight) || stateMachine.isInState(ZombieState.Idle))) {
 			stateMachine.changeState(ZombieState.Jump);
 		}
 

@@ -2,6 +2,7 @@ package com.matthewmohandiss.zombiegame;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.ai.fsm.DefaultStateMachine;
+import com.badlogic.gdx.ai.steer.behaviors.PrioritySteering;
 import com.badlogic.gdx.ai.steer.behaviors.Seek;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -270,7 +271,7 @@ public class ObjectCreator {
 		bodyDef.linearDamping = 0.5f;
 		Body body = world.createBody(bodyDef);
 		PolygonShape shape = new PolygonShape();
-		shape.setAsBox(Mappers.sm.get(zombie).width / 6, Mappers.sm.get(zombie).height / 2);
+		shape.setAsBox(Mappers.sm.get(zombie).width / 6, Mappers.sm.get(zombie).height / 2, new Vector2(-5, 0), 0);
 
 		FixtureDef fixtureDef = new FixtureDef();
 		fixtureDef.shape = shape;
@@ -278,10 +279,10 @@ public class ObjectCreator {
 		fixtureDef.friction = 0.0f;
 		fixtureDef.filter.categoryBits = ((short) CollisionMask.zombie_body.ordinal());
 
-		body.createFixture(createSensor(new Vector2(-(Mappers.sm.get(zombie).width / 6), 0), CollisionMask.zombie_left.ordinal()));
-		body.createFixture(createSensor(new Vector2(Mappers.sm.get(zombie).width / 6, 0), CollisionMask.zombie_right.ordinal()));
-		body.createFixture(createSensor(new Vector2(0, -(Mappers.sm.get(zombie).height / 2)), CollisionMask.zombie_bottom.ordinal()));
-		body.createFixture(createSensor(new Vector2(0, Mappers.sm.get(zombie).height / 2), CollisionMask.zombie_top.ordinal()));
+		body.createFixture(createSensor(new Vector2(-(Mappers.sm.get(zombie).width / 6 + 5), 0), CollisionMask.zombie_left.ordinal()));
+		body.createFixture(createSensor(new Vector2(Mappers.sm.get(zombie).width / 6 - 5, 0), CollisionMask.zombie_right.ordinal()));
+		body.createFixture(createSensor(new Vector2(-5, -(Mappers.sm.get(zombie).height / 2)), CollisionMask.zombie_bottom.ordinal()));
+		body.createFixture(createSensor(new Vector2(-5, Mappers.sm.get(zombie).height / 2), CollisionMask.zombie_top.ordinal()));
 
 		body.createFixture(fixtureDef);
 		physicsComponent.physicsBody = body;
@@ -307,8 +308,12 @@ public class ObjectCreator {
 		SteeringComponent steeringComponent = window.engine.createComponent(SteeringComponent.class);
 		SteerableEntity steerable = new SteerableEntity(zombie);
 		steeringComponent.steerable = steerable;
-		steeringComponent.steeringBehavior = new Seek<>(steerable);
-		steerable.setSteeringBehavior(steeringComponent.steeringBehavior);
+		steeringComponent.seekBehavior = new Seek<>(steerable);
+		PrioritySteering<Vector2> prioritySteeringBehavior = new PrioritySteering<>(steerable);
+		//prioritySteeringBehavior.add(new RaycastObstacleAvoidance<>(steerable, new ParallelSideRayConfiguration<>(steerable, 5, Mappers.sm.get(zombie).height/2 - 3), new Box2dRaycastCollisionDetector(world), 5));
+		prioritySteeringBehavior.add(steeringComponent.seekBehavior);
+		steerable.setSteeringBehavior(prioritySteeringBehavior);
+		steeringComponent.target = game.player;
 		zombie.add(steeringComponent);
 
 		WorldComponent worldComponent = window.engine.createComponent(WorldComponent.class);
@@ -351,7 +356,7 @@ public class ObjectCreator {
 
 		FixtureDef fixtureDef = new FixtureDef();
 		fixtureDef.shape = shape;
-		fixtureDef.density = .5f;
+		fixtureDef.density = .1f;
 		fixtureDef.filter.categoryBits = ((short) CollisionMask.bullet.ordinal());
 
 		body.createFixture(fixtureDef);

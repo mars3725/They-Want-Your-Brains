@@ -79,11 +79,12 @@ public enum ZombieState implements State<Entity> { //need to add a separate stat
 			AnimationComponent animation = Mappers.am.get(entity);
 			animation.activeAnimation = (Animation) animation.animations.get(Jump);
 			animation.loop = false;
+			Mappers.phm.get(entity).physicsBody.setLinearVelocity(0, 0);
 
 			if (Mappers.zm.get(entity).stateMachine.getPreviousState() == ZombieState.RunRight) {
-				Mappers.phm.get(entity).physicsBody.applyLinearImpulse(50, 750, Mappers.pm.get(entity).x, Mappers.pm.get(entity).y, true);
+				Mappers.phm.get(entity).physicsBody.applyLinearImpulse(100, 750, Mappers.pm.get(entity).x, Mappers.pm.get(entity).y, true);
 			} else if (Mappers.zm.get(entity).stateMachine.getPreviousState() == ZombieState.RunLeft) {
-				Mappers.phm.get(entity).physicsBody.applyLinearImpulse(-50, 750, Mappers.pm.get(entity).x, Mappers.pm.get(entity).y, true);
+				Mappers.phm.get(entity).physicsBody.applyLinearImpulse(-100, 750, Mappers.pm.get(entity).x, Mappers.pm.get(entity).y, true);
 			} else {
 				Mappers.phm.get(entity).physicsBody.applyLinearImpulse(0, 750, Mappers.pm.get(entity).x, Mappers.pm.get(entity).y, true);
 			}
@@ -193,13 +194,14 @@ public enum ZombieState implements State<Entity> { //need to add a separate stat
 			AnimationComponent animation = Mappers.am.get(entity);
 			animation.activeAnimation = (Animation) animation.animations.get(Attack);
 			animation.loop = true;
-
-			Mappers.plm.get(Mappers.wc.get(entity).game.player).stateMachine.changeState(PlayerState.Down);
 		}
 
 		@Override
 		public void update(Entity entity) {
 			Mappers.phm.get(entity).physicsBody.setLinearVelocity(0, Mappers.phm.get(entity).physicsBody.getLinearVelocity().y);
+			if (Mappers.am.get(entity).activeAnimation.isAnimationFinished(Mappers.am.get(entity).runningTime * 2) && !Mappers.plm.get(Mappers.wc.get(entity).game.player).stateMachine.isInState(PlayerState.Down)) {
+				Mappers.plm.get(Mappers.wc.get(entity).game.player).stateMachine.changeState(PlayerState.Down);
+			}
 		}
 
 		@Override

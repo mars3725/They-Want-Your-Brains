@@ -106,7 +106,11 @@ public enum PlayerState implements State<Entity> {
 		@Override
 		public void update(Entity entity) {
 			if (Mappers.am.get(entity).runningTime > Mappers.am.get(entity).activeAnimation.getAnimationDuration()) {
-				Mappers.plm.get(entity).stateMachine.revertToPreviousState();
+				if (Mappers.plm.get(entity).stateMachine.getPreviousState() != Shoot) {
+					Mappers.plm.get(entity).stateMachine.revertToPreviousState();
+				} else {
+					Mappers.plm.get(entity).stateMachine.changeState(Idle);
+				}
 			}
 		}
 
