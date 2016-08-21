@@ -7,6 +7,7 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.ai.fsm.DefaultStateMachine;
 import com.badlogic.gdx.ai.fsm.StateMachine;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.Fixture;
@@ -27,6 +28,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 	public GameLauncher window;
 	public PhysicsWorld physicsWorld;
 	public Entity zombie;
+	public ShapeRenderer shapeRenderer = new ShapeRenderer();
 	private Box2DDebugRenderer debugRenderer;
 	private ArrayList<Entity> entitiesForRemoval = new ArrayList<>();
 	private ObjectCreator objectCreator;
@@ -62,13 +64,13 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 		fsmSystem.priority = 2;
 		window.engine.addSystem(fsmSystem);
 
-		NavMeshSystem navMeshSystem = new NavMeshSystem(physicsWorld, window);
+		DebuggerSystem debuggerSystem = new DebuggerSystem();
+		debuggerSystem.priority = 6;
+		window.engine.addSystem(debuggerSystem);
+
+		NavMeshSystem navMeshSystem = new NavMeshSystem(physicsWorld, window, debuggerSystem);
 		navMeshSystem.priority = 5;
 		window.engine.addSystem(navMeshSystem);
-
-		NavDebuggerSystem navDebuggerSystem = new NavDebuggerSystem();
-		navDebuggerSystem.priority = 6;
-		//window.engine.addSystem(navDebuggerSystem);
 
 		SteeringSystem steeringSystem = new SteeringSystem();
 		steeringSystem.priority = 7;
@@ -241,7 +243,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 	public void render(float delta) {
 		window.engine.update(delta);
 		//http://gafferongames.com/game-physics/fix-your-timestep/
-		debugRenderer.render(physicsWorld.world, window.camera.combined);
+		//debugRenderer.render(physicsWorld.world, window.camera.combined);
 		physicsWorld.world.step(1 / 60f, 6, 2);
 		removeEntities();
 		hud.updateDevHUD();

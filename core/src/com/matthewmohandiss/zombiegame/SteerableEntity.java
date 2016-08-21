@@ -5,10 +5,11 @@ import com.badlogic.gdx.ai.fsm.StateMachine;
 import com.badlogic.gdx.ai.steer.Steerable;
 import com.badlogic.gdx.ai.steer.SteeringAcceleration;
 import com.badlogic.gdx.ai.steer.SteeringBehavior;
-import com.badlogic.gdx.ai.steer.behaviors.PrioritySteering;
 import com.badlogic.gdx.ai.utils.Location;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.matthewmohandiss.zombiegame.Enums.ZombieState;
 
 /**
@@ -148,11 +149,9 @@ public class SteerableEntity implements Steerable<Vector2> {
 	}
 
 	public void update(float delta) {
-		if (((PrioritySteering) steeringBehavior).getSelectedBehaviorIndex() == 0) {
 			Entity target = Mappers.str.get(entity).target;
 			targetLocation.setPosition(Mappers.phm.get(target).physicsBody.getPosition());
 			Mappers.str.get(entity).seekBehavior.setTarget(targetLocation);
-		}
 		if (steeringBehavior != null) {
 			steeringBehavior.calculateSteering(steeringOutput);
 			applySteering(steeringOutput, delta);
@@ -163,15 +162,27 @@ public class SteerableEntity implements Steerable<Vector2> {
 
 		StateMachine<Entity, ZombieState> stateMachine = Mappers.zm.get(entity).stateMachine;
 
-		if (steering.linear.x < 0 && (stateMachine.isInState(ZombieState.Idle) || stateMachine.isInState(ZombieState.RunRight))) {
+		if (steering.linear.x < -10 && (stateMachine.isInState(ZombieState.Idle) || stateMachine.isInState(ZombieState.RunRight))) {
 			stateMachine.changeState(ZombieState.RunLeft);
-		} else if (steering.linear.x > 0 && (stateMachine.isInState(ZombieState.Idle) || stateMachine.isInState(ZombieState.RunLeft))) {
+		} else if (steering.linear.x > 10 && (stateMachine.isInState(ZombieState.Idle) || stateMachine.isInState(ZombieState.RunLeft))) {
 			stateMachine.changeState(ZombieState.RunRight);
 		}
 
 		if (steering.linear.y > 75 && (stateMachine.isInState(ZombieState.RunLeft) || stateMachine.isInState(ZombieState.RunRight) || stateMachine.isInState(ZombieState.Idle))) {
 			stateMachine.changeState(ZombieState.Jump);
 		}
+
+		RayCastCallback callback = new RayCastCallback() {
+			@Override
+			public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
+				return 1;
+			}
+		};
+
+		Vector2 start = new Vector2(Mappers.pm.get(entity).x, Mappers.pm.get(entity).y);
+		Vector2 end = new Vector2(Mappers.pm.get(entity).x + 20, Mappers.pm.get(entity).y);
+
+		Mappers.wc.get(entity).game.physicsWorld.world.rayCast(callback, start, end);
 
 		if (steering.linear.isZero() && !stateMachine.isInState(ZombieState.Idle)) {
 			stateMachine.changeState(ZombieState.Idle);

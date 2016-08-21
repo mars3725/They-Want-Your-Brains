@@ -26,14 +26,16 @@ import java.util.ArrayList;
 public class NavMeshSystem extends IntervalSystem {
 	PhysicsWorld world;
 	GameLauncher window;
+	DebuggerSystem debugger;
 	Array<Entity> nodes = new Array<>();
 	Array<Entity> edges = new Array<>();
 	Array<Entity> objects = new Array<>();
 
-	public NavMeshSystem(PhysicsWorld world, GameLauncher window) {
+	public NavMeshSystem(PhysicsWorld world, GameLauncher window, DebuggerSystem debugger) {
 		super(1 / 60f);
 		this.world = world;
 		this.window = window;
+		this.debugger = debugger;
 	}
 
 	public void addObjectToMesh(Entity object) {
@@ -54,6 +56,7 @@ public class NavMeshSystem extends IntervalSystem {
 				Entity edge = createEdge(firstNode, secondNode);
 				edges.add(edge);
 				window.engine.addEntity(edge);
+				debugger.navEdges.add(edge);
 			}
 		}
 	}
@@ -68,6 +71,7 @@ public class NavMeshSystem extends IntervalSystem {
 			Mappers.dc.get(object).navNodes.add(node);
 			window.engine.addEntity(node);
 			nodes.add(node);
+			debugger.navNodes.add(node);
 		}
 
 		Array<Entity> navNodes = Mappers.dc.get(object).navNodes;
@@ -77,6 +81,7 @@ public class NavMeshSystem extends IntervalSystem {
 			Entity edge = createEdge(startingNode, endingNode);
 			window.engine.addEntity(edge);
 			edges.add(edge);
+			debugger.navEdges.add(edge);
 		}
 	}
 
@@ -102,7 +107,7 @@ public class NavMeshSystem extends IntervalSystem {
 		polygon.setPosition(body.getPosition().x, body.getPosition().y);
 		polygon.setRotation(MathUtils.radiansToDegrees * body.getAngle());
 
-		//getEngine().getSystem(NavDebuggerSystem.class).registeredShapes.add(polygon);
+		//getEngine().getSystem(DebuggerSystem.class).registeredShapes.add(polygon);
 		return polygon;
 	}
 

@@ -303,6 +303,7 @@ public class ObjectCreator {
 
 		ZombieComponent zombieComponent = window.engine.createComponent(ZombieComponent.class);
 		zombieComponent.stateMachine = new DefaultStateMachine<>(zombie, ZombieState.Idle, ZombieState.Idle);
+		zombieComponent.raycastStart.set(Mappers.sm.get(zombie).width / 3, Mappers.sm.get(zombie).height / 2);
 		zombie.add(zombieComponent);
 
 		SteeringComponent steeringComponent = window.engine.createComponent(SteeringComponent.class);
@@ -322,7 +323,6 @@ public class ObjectCreator {
 		worldComponent.physicsWorld = game.physicsWorld;
 		zombie.add(worldComponent);
 
-		zombie.add(window.engine.createComponent(ZombieComponent.class));
 		Mappers.tm.get(zombie).texture = Assets.zombie_fall;
 
 		return zombie;
