@@ -7,7 +7,6 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.ai.fsm.DefaultStateMachine;
 import com.badlogic.gdx.ai.fsm.StateMachine;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.Fixture;
@@ -28,7 +27,6 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 	public GameLauncher window;
 	public PhysicsWorld physicsWorld;
 	public Entity zombie;
-	public ShapeRenderer shapeRenderer = new ShapeRenderer();
 	private Box2DDebugRenderer debugRenderer;
 	private ArrayList<Entity> entitiesForRemoval = new ArrayList<>();
 	private ObjectCreator objectCreator;
@@ -88,13 +86,13 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 		window.engine.addEntity(crate2);
 		window.engine.getSystem(NavMeshSystem.class).addObjectToMesh(crate2);
 
-//		Entity canoe = objectCreator.canoe(100, 20);
-//		window.engine.addEntity(canoe);
-//		window.engine.getSystem(NavMeshSystem.class).addObjectToMesh(canoe);
-//
-//		Entity trophy = objectCreator.trophy(50, 20);
-//		window.engine.addEntity(trophy);
-//		window.engine.getSystem(NavMeshSystem.class).addObjectToMesh(trophy);
+		Entity canoe = objectCreator.canoe(175, 50);
+		window.engine.addEntity(canoe);
+		window.engine.getSystem(NavMeshSystem.class).addObjectToMesh(canoe);
+
+		Entity trophy = objectCreator.trophy(180, 20);
+		window.engine.addEntity(trophy);
+		window.engine.getSystem(NavMeshSystem.class).addObjectToMesh(trophy);
 //
 //		Entity zombieCorpse = objectCreator.zombieCorpse(20, 50);
 //		window.engine.addEntity(zombieCorpse);
@@ -126,6 +124,10 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 				Mappers.zm.get(entityA).stateMachine.changeState(ZombieState.Die);
 			}
 			entitiesForRemoval.add(entityB);
+		}
+
+		if (maskA == CollisionMask.bullet.ordinal()) {
+			entitiesForRemoval.add(entityA);
 		}
 	}
 

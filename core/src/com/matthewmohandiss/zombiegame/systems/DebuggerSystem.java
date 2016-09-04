@@ -25,12 +25,10 @@ public class DebuggerSystem extends EntitySystem {
 	public Array<Entity> navEdges = new Array<>();
 	public Array<Vector2> rayCasts = new Array<>();
 	ShapeRenderer shapeRenderer = new ShapeRenderer();
+	private boolean debugNavMesh = false;
+	private boolean debugRayCasts = false;
+	private boolean debugShapes = false;
 	private Camera camera;
-
-	public DebuggerSystem() {
-		//super(Family.one(NavNodeComponent.class, NavEdgeComponent.class).get());
-		//super(1f/60f);
-	}
 
 	@Override
 	public void addedToEngine(Engine engine) {
@@ -39,44 +37,59 @@ public class DebuggerSystem extends EntitySystem {
 		shapeRenderer.setAutoShapeType(true);
 	}
 
+	public void setDebugPreferences(boolean navMesh, boolean rayCasts, boolean shapes) {
+		this.debugNavMesh = navMesh;
+		this.debugRayCasts = rayCasts;
+		this.debugShapes = shapes;
+	}
+
 	@Override
 	public void update(float deltaTime) {
 		camera.update();
 		shapeRenderer.setProjectionMatrix(camera.combined);
 
-		for (Entity node :
-				navNodes) {
-			shapeRenderer.begin();
-			if (Mappers.nnc.get(node).active) {
+		if (debugNavMesh) {
+			for (Entity node :
+					navNodes) {
+				shapeRenderer.begin();
 				shapeRenderer.setColor(Color.GREEN);
-				shapeRenderer.circle(Mappers.pm.get(node).x, Mappers.pm.get(node).y, 2, 6);
+				shapeRenderer.set(ShapeRenderer.ShapeType.Filled);
+				if (Mappers.nnc.get(node).active) {
+					shapeRenderer.circle(Mappers.pm.get(node).x, Mappers.pm.get(node).y, 2, 6);
+				}
+				shapeRenderer.end();
 			}
-			shapeRenderer.end();
-		}
 
-		for (Entity edge :
-				navEdges) {
-			shapeRenderer.begin();
-			NavEdgeComponent edgeComponent = Mappers.ncc.get(edge);
-
-			if (Mappers.ncc.get(edge).viable) {
+			for (Entity edge :
+					navEdges) {
+				shapeRenderer.begin();
+				NavEdgeComponent edgeComponent = Mappers.ncc.get(edge);
 				shapeRenderer.setColor(Color.YELLOW);
-				shapeRenderer.line(Mappers.pm.get(edgeComponent.startingNode).x, Mappers.pm.get(edgeComponent.startingNode).y, Mappers.pm.get(edgeComponent.endingNode).x, Mappers.pm.get(edgeComponent.endingNode).y);
+				if (Mappers.ncc.get(edge).viable) {
+					shapeRenderer.line(Mappers.pm.get(edgeComponent.startingNode).x, Mappers.pm.get(edgeComponent.startingNode).y, Mappers.pm.get(edgeComponent.endingNode).x, Mappers.pm.get(edgeComponent.endingNode).y);
+				}
+				shapeRenderer.end();
 			}
-			shapeRenderer.end();
 		}
 
-		for (Polygon shape :
-				registeredShapes) {
-			shapeRenderer.begin();
-			//shapeRenderer.set(ShapeRenderer.ShapeType.Filled);
-			float[] vertices = shape.getTransformedVertices();
-			shapeRenderer.polygon(vertices);
-			shapeRenderer.end();
+		if (debugShapes) {
+			for (Polygon shape :
+					registeredShapes) {
+				shapeRenderer.begin();
+				shapeRenderer.set(ShapeRenderer.ShapeType.Filled);
+				float[] vertices = shape.getTransformedVertices();
+				shapeRenderer.polygon(vertices);
+				shapeRenderer.end();
+			}
 		}
 
-		for (int i = 0; i < rayCasts.size - 1; i += 2) {
-			shapeRenderer.begin();
+		if (debugRayCasts) {
+			for (int i = 0; i < rayCasts.size - 1; i += 2) {
+				shapeRenderer.begin();
+				shapeRenderer.setColor(Color.CORAL);
+				shapeRenderer.line(rayCasts.get(i), rayCasts.get(i + 1));
+				shapeRenderer.end();
+			}
 		}
 	}
 }

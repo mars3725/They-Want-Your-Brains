@@ -11,6 +11,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.matthewmohandiss.zombiegame.Enums.ZombieState;
+import com.matthewmohandiss.zombiegame.systems.DebuggerSystem;
 
 /**
  * Created by Matthew on 7/27/16.
@@ -160,7 +161,7 @@ public class SteerableEntity implements Steerable<Vector2> {
 
 	protected void applySteering(SteeringAcceleration<Vector2> steering, float deltaTime) {
 
-		StateMachine<Entity, ZombieState> stateMachine = Mappers.zm.get(entity).stateMachine;
+		final StateMachine<Entity, ZombieState> stateMachine = Mappers.zm.get(entity).stateMachine;
 
 		if (steering.linear.x < -10 && (stateMachine.isInState(ZombieState.Idle) || stateMachine.isInState(ZombieState.RunRight))) {
 			stateMachine.changeState(ZombieState.RunLeft);
@@ -175,12 +176,24 @@ public class SteerableEntity implements Steerable<Vector2> {
 		RayCastCallback callback = new RayCastCallback() {
 			@Override
 			public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
+				if ((stateMachine.isInState(ZombieState.RunLeft) || stateMachine.isInState(ZombieState.RunRight) || stateMachine.isInState(ZombieState.Idle))) {
+					stateMachine.changeState(ZombieState.Jump);
+				}
 				return 1;
 			}
 		};
 
-		Vector2 start = new Vector2(Mappers.pm.get(entity).x, Mappers.pm.get(entity).y);
-		Vector2 end = new Vector2(Mappers.pm.get(entity).x + 20, Mappers.pm.get(entity).y);
+		Vector2 start = new Vector2(Mappers.pm.get(entity).x - 5, Mappers.pm.get(entity).y - 7);
+		Vector2 end = new Vector2(Mappers.pm.get(entity).x + 3, Mappers.pm.get(entity).y - 7);
+
+
+		if (Mappers.wc.get(entity).window.engine.getSystem(DebuggerSystem.class).rayCasts.size != 0) {
+			Mappers.wc.get(entity).window.engine.getSystem(DebuggerSystem.class).rayCasts.set(0, start);
+			Mappers.wc.get(entity).window.engine.getSystem(DebuggerSystem.class).rayCasts.set(1, end);
+		} else {
+			Mappers.wc.get(entity).window.engine.getSystem(DebuggerSystem.class).rayCasts.add(start);
+			Mappers.wc.get(entity).window.engine.getSystem(DebuggerSystem.class).rayCasts.add(end);
+		}
 
 		Mappers.wc.get(entity).game.physicsWorld.world.rayCast(callback, start, end);
 

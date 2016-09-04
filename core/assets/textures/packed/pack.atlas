@@ -420,13 +420,6 @@ zombie_run
   size: 28, 28
   orig: 28, 28
   offset: 0, 0
-  index: 7
-zombie_run
-  rotate: false
-  xy: 482, 2
-  size: 28, 28
-  orig: 28, 28
-  offset: 0, 0
   index: 4
 zombie_run
   rotate: false
@@ -435,6 +428,13 @@ zombie_run
   orig: 28, 28
   offset: 0, 0
   index: 8
+zombie_run
+  rotate: false
+  xy: 482, 2
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: 7
 zombie_run
   rotate: false
   xy: 512, 2
